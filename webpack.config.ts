@@ -23,7 +23,7 @@ const config: webpack.Configuration = {
     environment: {
       arrowFunction: false,
     },
-    publicPath: NODE_ENV === "production" ? "/otus--homework--19" : "/",
+    publicPath: NODE_ENV === "production" ? "/otus--homework--19/" : "/",
   },
   module: {
     rules: [

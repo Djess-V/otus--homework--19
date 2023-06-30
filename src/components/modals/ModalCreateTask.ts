@@ -1,3 +1,7 @@
+import { Task } from "../../api/Task";
+import { storage } from "../../api/loadInitialDataIntoStore";
+import { addTask } from "../../slices/sliceTask";
+import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 export class ModalCreateTask extends Component {
@@ -37,18 +41,21 @@ export class ModalCreateTask extends Component {
       setTimeout(() => {
         errorMessage.style.display = "";
       }, 7000);
-    } /* else {
-         const tasks = await storage.createTask(
-           new Task(inputText.value, inputTags.value)
-         );
-   
-         drawTasks(element, tasks); */
+    } else {
+      const task = new Task(inputText.value, inputTags.value);
 
-    const buttonCancel = this.el.querySelector(
-      ".footer-content-modal__button-cancel"
-    ) as HTMLButtonElement;
+      await storage.createTask(task);
 
-    buttonCancel.click();
+      store.dispatch(addTask(task));
+
+      const buttonCancel = this.el.querySelector(
+        ".footer-content-modal__button-cancel"
+      ) as HTMLButtonElement;
+
+      buttonCancel.click();
+
+      this.state.parent.setState({ tasks: store.getState().tasks });
+    }
   };
 
   events = {

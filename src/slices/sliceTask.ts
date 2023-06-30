@@ -1,51 +1,46 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Task } from "../api/Task";
 
-export interface ITask {
-  id: string;
-  text: string;
-  status: boolean;
-  createdAt: Date;
-  tags: string[];
-}
-
-const initialState: ITask[] = [
-  {
-    id: "task1",
-    text: "Hello, World!",
-    status: true,
-    createdAt: new Date(),
-    tags: ["foo", "boo"],
-  },
-  {
-    id: "task2",
-    text: "Bye, Bob!",
-    status: false,
-    createdAt: new Date(),
-    tags: ["foo", "boo"],
-  },
-  {
-    id: "task3",
-    text: "Hello, Greg!",
-    status: true,
-    createdAt: new Date(),
-    tags: [],
-  },
-];
+const initialState: Task[] = [];
 
 const taskSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    addTask: (state, action: PayloadAction<ITask>) => {
+    unloadTasksFromLS: (state, action: PayloadAction<Task[]>) => {
+      state = action.payload;
+      return state;
+    },
+
+    addTask: (state, action: PayloadAction<Task>) => {
       state.push(action.payload);
       return state;
     },
 
-    removeTask: (state, action: PayloadAction<string>) =>
+    updateTask: (
+      state,
+      action: PayloadAction<{ id: string; data: string | boolean }>
+    ) =>
+      state.map((task) => {
+        if (task.id === action.payload.id) {
+          const newTask = { ...task };
+          if (typeof action.payload.data === "string") {
+            newTask.text = action.payload.data;
+          } else {
+            newTask.status = action.payload.data;
+          }
+
+          return newTask;
+        }
+        return task;
+      }),
+
+    deleteTask: (state, action: PayloadAction<string>) =>
       state.filter((task) => task.id !== action.payload),
   },
 });
 
-export const { addTask, removeTask } = taskSlice.actions;
+export const { addTask, updateTask, deleteTask, unloadTasksFromLS } =
+  taskSlice.actions;
 
 export default taskSlice.reducer;

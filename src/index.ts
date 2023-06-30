@@ -7,6 +7,9 @@ import { Tasks } from "./components/pages/Tasks";
 import { About } from "./components/modals/About";
 import { IDateInfo, getTheDate } from "./service/functions";
 import { store } from "./store/store";
+import { loadInitialDataIntoStore } from "./api/loadInitialDataIntoStore";
+
+loadInitialDataIntoStore();
 
 const { indexOfMonth, year } = getTheDate();
 
@@ -25,20 +28,19 @@ const about = element.querySelector(".about") as HTMLElement;
 
 const router = new Router();
 
-const links = ["/", /\/calendar(.+)?/, "/about"];
+let homeLink = "/";
 
 if (PRODUCTION) {
-  links[0] = PREFIX + links[0];
-  links[1] = /\/otus--homework--19\/calendar(.+)?/;
-  links[2] = PREFIX + links[2];
+  homeLink = PREFIX + homeLink;
 }
-router.on(links[0], {
+
+router.on(homeLink, {
   onEnter: () => {
     new Start(main);
   },
   onLeave: handleLeaveForAll(),
 });
-router.on(links[1], {
+router.on(/\/calendar(.+)?/, {
   onEnter: handleEnterForCalendar(),
   onLeave: handleLeaveForAll(),
 });
@@ -48,7 +50,7 @@ router.on(/\/tasks(.+)?/, {
   },
   onLeave: handleLeaveForAll(),
 });
-router.on(links[2], {
+router.on(/\/about/, {
   onEnter: () => {
     new About(about);
   },

@@ -1,3 +1,6 @@
+import { storage } from "../../api/loadInitialDataIntoStore";
+import { updateTask } from "../../slices/sliceTask";
+import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 export class ModalUpdateTask extends Component {
@@ -13,7 +16,7 @@ export class ModalUpdateTask extends Component {
     modalWrapper.remove();
   };
 
-  handleClickUpdateTask = () => {
+  handleClickUpdateTask = async () => {
     const input = this.el.querySelector(
       ".body-modal-update__input"
     ) as HTMLInputElement;
@@ -29,9 +32,11 @@ export class ModalUpdateTask extends Component {
         errorMessage.style.display = "";
       }, 3000);
     } else {
-      // const newText = input.value.replace(/[<>]/gi, "");
+      const newText = input.value.replace(/[<>]/gi, "");
 
-      // textTask.innerHTML = newText;
+      await storage.update(this.state.task.id, newText);
+
+      store.dispatch(updateTask({ id: this.state.task.id, data: newText }));
 
       const buttonCancel = this.el.querySelector(
         ".footer-content-modal__button-cancel"
@@ -39,7 +44,7 @@ export class ModalUpdateTask extends Component {
 
       buttonCancel.click();
 
-      // await storage.update(id, newText);
+      this.state.parent.setState({ tasks: store.getState().tasks });
     }
   };
 

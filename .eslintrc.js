@@ -54,6 +54,7 @@ module.exports = {
     "no-console": "off",
     "no-loop-func": "off",
     "no-new": "off",
+    "no-constructor-return": "off",
     "no-promise-executor-return": "off",
     "no-use-before-define": "off",
     "no-restricted-syntax": "off",

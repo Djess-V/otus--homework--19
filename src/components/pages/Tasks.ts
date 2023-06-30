@@ -1,9 +1,12 @@
 import Component from "../basic/Component";
 import { addZero } from "../../service/functions";
-import { ITask } from "../../slices/sliceTask";
+import { Task } from "../../api/Task";
 import { ModalCreateTask } from "../modals/ModalCreateTask";
 import { ModalFilter } from "../modals/ModalFilter";
 import { ModalUpdateTask } from "../modals/ModalUpdateTask";
+import { storage } from "../../api/loadInitialDataIntoStore";
+import { store } from "../../store/store";
+import { deleteTask, updateTask } from "../../slices/sliceTask";
 
 export class Tasks extends Component {
   handleFormSubmit = (e: Event) => {
@@ -35,27 +38,18 @@ export class Tasks extends Component {
   handleClickCreateTask = () => {
     const modals = this.el.querySelector(".modals") as HTMLElement;
 
-    new ModalCreateTask(modals);
+    new ModalCreateTask(modals, { parent: this });
   };
 
-  handleClickDeleteTask = (e: Event) => {
+  handleClickDeleteTask = async (e: Event) => {
     const { id } = (e.target as HTMLButtonElement).dataset;
 
     if (id) {
-      const task = this.el.querySelector(`[data-id='${id}']`) as HTMLElement;
+      await storage.delete(id);
 
-      task.remove();
+      store.dispatch(deleteTask(id));
 
-      const items = this.el.querySelectorAll(
-        ".task"
-      ) as NodeListOf<HTMLElement>;
-
-      if (items.length === 1) {
-        const tasks = this.el.querySelector(".tasks") as HTMLElement;
-        tasks.innerHTML = "";
-      }
-
-      // await storage.delete(id);
+      this.setState({ tasks: store.getState().tasks });
     }
   };
 
@@ -65,19 +59,25 @@ export class Tasks extends Component {
     if (id) {
       const modals = this.el.querySelector(".modals") as HTMLElement;
 
-      const task = <ITask>(
-        (<ITask[]>this.state.tasks).find((item) => item.id === id)
+      const task = <Task>(
+        (<Task[]>this.state.tasks).find((item) => item.id === id)
       );
 
-      new ModalUpdateTask(modals, { task });
+      new ModalUpdateTask(modals, { task, parent: this });
     }
   };
 
-  handleClickStatusTask = (e: Event) => {
-    const { id } = (e.target as HTMLButtonElement).dataset;
+  handleClickStatusTask = async (e: Event) => {
+    const { id } = (e.target as HTMLInputElement).dataset;
 
     if (id) {
-      // await storage.update(id, "", input.checked);
+      await storage.update(id, "", (e.target as HTMLInputElement).checked);
+
+      store.dispatch(
+        updateTask({ id, data: (e.target as HTMLInputElement).checked })
+      );
+
+      this.setState({ tasks: store.getState().tasks });
     }
   };
 
@@ -91,7 +91,7 @@ export class Tasks extends Component {
   };
 
   render() {
-    const listTasks = `${(<ITask[]>this.state.tasks)
+    const listTasks = `${(<Task[]>this.state.tasks)
       .map((task, i, array) => {
         let entry = "";
 
@@ -147,7 +147,7 @@ export class Tasks extends Component {
       <ol class="tasks-container">
       ${listTasks}
       </ol>
-      <button class="tasks__button-create-task _button">Create a task</button>
+      <button class="tasks__button-create-task _button">Create a task</button>     
     </div>
     <div class="modals" ></div>    
     `;

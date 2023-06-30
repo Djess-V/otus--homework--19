@@ -17,19 +17,17 @@ new App(element, { indexOfMonth, year });
 const main = element.querySelector(".main") as HTMLElement;
 const about = element.querySelector(".about") as HTMLElement;
 
-if (PRODUCTION) {
-  element.querySelectorAll("a").forEach((link) => {
-    link.href = PREFIX + link.href;
-  });
-}
-
-new Start(main);
-
 const router = new Router();
 
 router.on("/", {
   onEnter: () => {
     new Start(main);
+
+    if (PRODUCTION) {
+      element.querySelectorAll("a").forEach((link) => {
+        link.href += PREFIX;
+      });
+    }
   },
   onLeave: handleLeaveForAll(),
 });
@@ -122,8 +120,8 @@ function handleEnterForCalendar() {
     new Calendar(main, dateInfo);
 
     if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.href;
+      main.querySelectorAll("a").forEach((link) => {
+        link.href += PREFIX;
       });
     }
   };

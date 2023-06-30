@@ -9,7 +9,7 @@ type Mode = "none" | "production" | "development" | undefined;
 
 const NODE_ENV: Mode = process.env.NODE_ENV as Mode;
 
-const PREFIX = NODE_ENV === "production" ? "/otus--homework--18" : "";
+const PREFIX = NODE_ENV === "production" ? "/otus--homework--19" : "";
 
 const config: webpack.Configuration = {
   entry: { index: resolve(__dirname, "./src/index.ts") },

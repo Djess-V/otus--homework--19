@@ -128,7 +128,7 @@ function handleEnterForCalendar() {
 
     if (PRODUCTION) {
       main.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.pathname;
+        link.href = PREFIX + link.pathname + link.search;
       });
     }
   };

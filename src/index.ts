@@ -14,24 +14,31 @@ const element = document.getElementById("app") as HTMLDivElement;
 
 new App(element, { indexOfMonth, year });
 
+if (PRODUCTION) {
+  element.querySelectorAll("a").forEach((link) => {
+    link.href = PREFIX + link.pathname;
+  });
+}
+
 const main = element.querySelector(".main") as HTMLElement;
 const about = element.querySelector(".about") as HTMLElement;
 
 const router = new Router();
 
-router.on("/", {
+const links = ["/", /\/calendar(.+)?/, "/about"];
+
+if (PRODUCTION) {
+  links[0] = PREFIX + links[0];
+  links[1] = /\/otus--homework--19\/calendar(.+)?/;
+  links[2] = PREFIX + links[2];
+}
+router.on(links[0], {
   onEnter: () => {
     new Start(main);
-
-    if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href += PREFIX;
-      });
-    }
   },
   onLeave: handleLeaveForAll(),
 });
-router.on(/\/calendar(.+)?/, {
+router.on(links[1], {
   onEnter: handleEnterForCalendar(),
   onLeave: handleLeaveForAll(),
 });
@@ -41,7 +48,7 @@ router.on(/\/tasks(.+)?/, {
   },
   onLeave: handleLeaveForAll(),
 });
-router.on("/about", {
+router.on(links[2], {
   onEnter: () => {
     new About(about);
   },
@@ -121,7 +128,7 @@ function handleEnterForCalendar() {
 
     if (PRODUCTION) {
       main.querySelectorAll("a").forEach((link) => {
-        link.href += PREFIX;
+        link.href = PREFIX + link.pathname;
       });
     }
   };

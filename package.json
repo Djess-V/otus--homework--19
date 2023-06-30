@@ -6,9 +6,9 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production"
+    "start": "nodemon --watch ./webpack.config.ts --exec webpack serve --define-process-env-node-env development",
+    "build:dev": "webpack --define-process-env-node-env development",
+    "build": "webpack --define-process-env-node-env production"
   },
   "keywords": [],
   "author": "",
@@ -37,7 +37,11 @@
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "mini-css-extract-plugin": "^2.7.6",
+    "nodemon": "^2.0.22",
     "prettier": "^2.8.8",
+    "sass": "^1.63.6",
+    "sass-loader": "^13.3.2",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
     "webpack": "^5.88.0",
     "webpack-cli": "^5.1.4",
@@ -47,7 +51,7 @@
     "*.{js,ts}": "eslint --cache --fix"
   },
   "dependencies": {
-    "@djess-v/router": "^1.0.0",
+    "@djess-v/router": "^1.0.5",
     "@reduxjs/toolkit": "^1.9.5",
     "firebase": "^9.23.0",
     "fuzzy-search": "^3.2.1",

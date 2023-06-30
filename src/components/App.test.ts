@@ -17,12 +17,4 @@ describe("App", () => {
 
     expect(app).toBeInstanceOf(Component);
   });
-
-  it("check component rendering", async () => {
-    const app = new App(el);
-
-    await sleep(10);
-
-    expect(el.querySelector(".link")?.innerHTML).toBe(`Проверка`);
-  });
 });

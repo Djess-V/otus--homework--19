@@ -38,16 +38,11 @@ describe("Component", () => {
   it("can render props from state", async () => {
     const text = String(Math.random());
     class TestComponent extends Component {
-      state = {
-        text,
-      };
-
       render() {
         return `<h1>${this.state.text}</h1>`;
       }
     }
-    const test = new TestComponent(el);
-    await sleep(10);
+    const test = new TestComponent(el, { text });
 
     expect(el.innerHTML).toBe(`<h1>${text}</h1>`);
   });
@@ -56,20 +51,15 @@ describe("Component", () => {
     const text = String(Math.random());
     const text2 = String(Math.random());
     class TestComponent extends Component {
-      state = {
-        text,
-        count: 1,
-      };
-
       render() {
         return `<h1>${this.state.text}|${this.state.count}</h1>`;
       }
     }
 
-    const component = new TestComponent(el);
-    await sleep(10);
+    const component = new TestComponent(el, { text, count: 1 });
 
     expect(component.setState).toBeInstanceOf(Function);
+    expect(el.innerHTML).toBe(`<h1>${text}|1</h1>`);
 
     component.setState({
       text: text2,
@@ -106,6 +96,7 @@ describe("Component", () => {
       }
     }
     const test = new TestComponent(el);
+
     await sleep(10);
 
     expect(onH1Click).not.toHaveBeenCalled();
@@ -114,11 +105,7 @@ describe("Component", () => {
 
     const h1 = el.querySelector("h1") as HTMLElement;
 
-    h1.dispatchEvent(
-      new window.Event("click", {
-        bubbles: true,
-      })
-    );
+    h1.dispatchEvent(new window.Event("click", { bubbles: true }));
 
     expect(onH1Click).toHaveBeenCalledTimes(1);
 

@@ -1,0 +1,148 @@
+/* -----Tasks----- */
+
+hr {
+  margin: 15px 0px;
+}
+
+.tasks-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0 0 10px 0;
+}
+
+.form-search-tasks {
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+
+  &__inpit {
+    margin-right: 1rem;
+  }
+
+  &__message {
+    margin-top: 10px;
+    opacity: 0;
+    color: rgb(182, 48, 48);
+  }
+}
+
+@media (max-width: 705px) {
+  .form-search-tasks {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-search-tasks__inpit {
+    margin-right: 0;
+  }
+
+  .form-search-tasks__button {
+    margin-top: 10px;
+  }
+}
+
+.buttons-up-tasks {
+  align-self: flex-start;
+  margin: 10px 0 20px;
+
+  &__button-filter {
+    margin-right: 15px;
+  }
+}
+
+.tasks__message {
+  display: none;
+  color: rgb(182, 48, 48);
+}
+
+.task {
+  display: flex;
+  font-weight: 500;
+  width: 100%;
+
+  & * {
+    text-align: center;
+  }
+
+  &:not(:first-child) {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 620px) {
+  .task {
+    font-size: 1rem;
+  }
+}
+
+.task-header {
+  font-weight: 600;
+}
+
+.task__text {
+  width: 40%;
+}
+
+.text-task {
+  text-align: left;
+}
+
+.task__options_type_status {
+  width: 13%;
+}
+
+.task__options_type_update {
+  width: 13%;
+}
+.task__options_type_delete {
+  width: 14%;
+}
+
+.task__createdAt {
+  width: 20%;
+}
+
+.task__createdAt_value {
+  font-size: 0.7rem;
+}
+
+@media (max-width: 690px) {
+  .tasks-container > * {
+    font-size: 3.2vmin;
+  }
+}
+
+@media (max-width: 450px) {
+  .tasks-container > * {
+    font-size: 3.5vmin;
+  }
+  .task__createdAt_value {
+    font-size: 2.5vmin;
+  }
+}
+.status__input {
+  cursor: pointer;
+}
+
+._task-button {
+  width: 25px;
+  height: 25px;
+  border: none;
+  cursor: pointer;
+}
+
+.update__button {
+  background: url("../assets/images/pencil.svg") no-repeat;
+  background-size: contain;
+}
+
+.delete__button {
+  background: url("../assets/images/trashcan.svg") no-repeat;
+  background-size: contain;
+}
+
+.tasks__button-create-task {
+  align-self: flex-start;
+}

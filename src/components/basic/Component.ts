@@ -1,4 +1,4 @@
-export default abstract class Component<State = NonNullable<unknown>> {
+export default abstract class Component<State = Record<string, any>> {
   readonly el: HTMLElement;
 
   protected state: State = {} as State;
@@ -40,8 +40,8 @@ export default abstract class Component<State = NonNullable<unknown>> {
   }
 
   private onMount = (): void => {
+    this.el.innerHTML = this.render();
     setTimeout(() => {
-      this.el.innerHTML = this.render();
       this.subscribeToEvents();
     }, 0);
   };

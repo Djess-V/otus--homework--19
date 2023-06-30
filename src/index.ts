@@ -16,7 +16,7 @@ new App(element, { indexOfMonth, year });
 
 if (PRODUCTION) {
   element.querySelectorAll("a").forEach((link) => {
-    link.href = PREFIX + link.pathname;
+    link.href = PREFIX + link.pathname + link.search;
   });
 }
 

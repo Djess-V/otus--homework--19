@@ -1,11 +1,11 @@
 import _ from "lodash";
-import { Task } from "./Task";
+import { ITask, getNewTask } from "./Task";
 import { IValue } from "../service/constants";
 
 export class LocalStorage {
   dbName = "";
 
-  tasks: Task[] = [];
+  tasks: ITask[] = [];
 
   static #instance: null | LocalStorage = null;
 
@@ -17,23 +17,23 @@ export class LocalStorage {
     LocalStorage.#instance = this;
   }
 
-  createStorage = async (): Promise<Task[]> => {
+  createStorage = async (): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     if (this.tasks.length === 0) {
-      this.tasks.push(new Task("First task", "task"));
+      this.tasks.push(getNewTask("First task", "task"));
 
       this.saveInStorage(this.tasks);
     }
     return this.tasks;
   };
 
-  fetchAll = async (): Promise<Task[]> => {
+  fetchAll = async (): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
     return this.tasks;
   };
 
-  search = async (text: string): Promise<Task[]> => {
+  search = async (text: string): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     this.tasks = this.tasks.filter((task) =>
@@ -43,7 +43,7 @@ export class LocalStorage {
     return this.tasks;
   };
 
-  createTask = async (task: Task): Promise<Task[]> => {
+  createTask = async (task: ITask): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     this.tasks.push(task);
@@ -53,7 +53,7 @@ export class LocalStorage {
     return this.tasks;
   };
 
-  delete = async (id: string): Promise<Task[]> => {
+  delete = async (id: string): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     this.tasks = this.tasks.filter((task) => task.id !== id);
@@ -67,7 +67,7 @@ export class LocalStorage {
     id: string,
     text?: string,
     status?: boolean
-  ): Promise<Task[]> => {
+  ): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     this.tasks = this.tasks.map((task) => {
@@ -89,7 +89,7 @@ export class LocalStorage {
     return this.tasks;
   };
 
-  sortBy = async (param1: string, param2: string): Promise<Task[]> => {
+  sortBy = async (param1: string, param2: string): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     if (param1 !== "tags") {
@@ -123,18 +123,16 @@ export class LocalStorage {
     return this.tasks;
   };
 
-  private async saveInStorage(tasks: Task[]): Promise<void> {
+  private async saveInStorage(tasks: ITask[]): Promise<void> {
     localStorage.setItem(this.dbName, JSON.stringify(tasks));
   }
 
-  private readFromStorage = async (): Promise<Task[]> => {
+  private readFromStorage = async (): Promise<ITask[]> => {
     try {
       const items = localStorage.getItem(this.dbName);
 
       if (items) {
-        return JSON.parse(items, (key, value) =>
-          key === "createdAt" ? new Date(value) : value
-        );
+        return JSON.parse(items);
       }
 
       return [];

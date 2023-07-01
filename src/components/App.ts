@@ -1,42 +1,67 @@
+import { IArgs } from "@djess-v/router";
 import Component from "./basic/Component";
 import menu from "../assets/images/menu-bars.svg";
 import { months } from "../service/constants";
 
 export class App extends Component {
-  handleClickLink = (e: Event) => {
-    if ((<HTMLElement>e.target).tagName !== "A") {
-      return;
-    }
+  constructor(
+    ...props: [el: HTMLElement, initialState?: Partial<Record<string, any>>]
+  ) {
+    super(...props);
+    this.state.eventBus.on("linking", (...args: IArgs[]) =>
+      this.handleLinking(...args)
+    );
+  }
 
-    if ((<HTMLElement>e.target).classList.contains("nav-header__link_active")) {
-      return;
-    }
+  handleLinking = (...args: IArgs[]) => {
+    const regExp = /(\/calendar)|(\/tasks)|(\/about)/;
 
-    let links: NodeListOf<HTMLAnchorElement> | null = null;
+    const currentRegExpExecArray = regExp.exec(args[0].currentPath);
+    let currentMatch: string;
 
-    if ((<HTMLAnchorElement>e.target).dataset.id !== "/") {
-      (<HTMLAnchorElement>e.target).classList.add("nav-header__link_active");
-      links = (<HTMLElement>e.target).parentElement?.querySelectorAll(
-        ".nav-header__link"
-      ) as NodeListOf<HTMLAnchorElement>;
+    if (!currentRegExpExecArray) {
+      if (args[0].currentPath !== "/") {
+        return;
+      }
+
+      currentMatch = args[0].currentPath;
     } else {
-      links = this.el.querySelectorAll(
-        ".nav-header__link"
-      ) as NodeListOf<HTMLAnchorElement>;
+      currentMatch = currentRegExpExecArray[0];
     }
 
-    if (links) {
-      links.forEach((link) => {
-        if (link !== e.target) {
-          link.classList.remove("nav-header__link_active");
-        }
-      });
+    if (!args[0].previousPath) {
+      return;
     }
-  };
 
-  events = {
-    "click@.nav-header": this.handleClickLink,
-    "click@.header-container__title": this.handleClickLink,
+    const prevRegExpExecArray = regExp.exec(args[0].previousPath);
+    let prevMatch: string;
+
+    if (!prevRegExpExecArray) {
+      if (args[0].previousPath !== "/") {
+        return;
+      }
+      prevMatch = args[0].previousPath;
+    } else {
+      prevMatch = prevRegExpExecArray[0];
+    }
+
+    if (currentMatch === prevMatch) {
+      return;
+    }
+
+    const currentLink = this.el.querySelector(
+      `[data-id='${currentMatch}']`
+    ) as HTMLAnchorElement;
+
+    const prevLink = this.el.querySelector(
+      `[data-id='${prevMatch}']`
+    ) as HTMLAnchorElement;
+
+    prevLink.classList.remove("nav-header__link_active");
+
+    if (currentLink.dataset.id !== "/") {
+      currentLink.classList.add("nav-header__link_active");
+    }
   };
 
   render() {

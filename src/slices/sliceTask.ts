@@ -1,18 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Task } from "../api/Task";
+import { ITask } from "../api/Task";
 
-const initialState: Task[] = [];
+const initialState: ITask[] = [];
 
 const taskSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    unloadTasksFromLS: (state, action: PayloadAction<Task[]>) => {
+    unloadTasksFromLS: (state, action: PayloadAction<ITask[]>) => {
       state = action.payload;
       return state;
     },
 
-    addTask: (state, action: PayloadAction<Task>) => {
+    addTask: (state, action: PayloadAction<ITask>) => {
       state.push(action.payload);
       return state;
     },

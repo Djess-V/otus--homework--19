@@ -1,14 +1,32 @@
 import Component from "../basic/Component";
 import { addZero } from "../../service/functions";
-import { Task } from "../../api/Task";
+import { ITask, getNewTask } from "../../api/Task";
 import { ModalCreateTask } from "../modals/ModalCreateTask";
 import { ModalFilter } from "../modals/ModalFilter";
 import { ModalUpdateTask } from "../modals/ModalUpdateTask";
 import { storage } from "../../api/loadInitialDataIntoStore";
 import { store } from "../../store/store";
-import { deleteTask, updateTask } from "../../slices/sliceTask";
+import { addTask, deleteTask, updateTask } from "../../slices/sliceTask";
 
 export class Tasks extends Component {
+  createTask = async (text: string, tags: string) => {
+    const task = getNewTask(text, tags);
+
+    await storage.createTask(task);
+
+    store.dispatch(addTask(task));
+
+    this.setState({ tasks: store.getState().tasks });
+  };
+
+  updateText = async (id: string, text: string) => {
+    await storage.update(id, text);
+
+    store.dispatch(updateTask({ id, data: text }));
+
+    this.setState({ tasks: store.getState().tasks });
+  };
+
   handleFormSubmit = (e: Event) => {
     // e.preventDefault();
     // const inputSearch = this.el.querySelector(
@@ -38,7 +56,7 @@ export class Tasks extends Component {
   handleClickCreateTask = () => {
     const modals = this.el.querySelector(".modals") as HTMLElement;
 
-    new ModalCreateTask(modals, { parent: this });
+    new ModalCreateTask(modals, { createTask: this.createTask });
   };
 
   handleClickDeleteTask = async (e: Event) => {
@@ -53,17 +71,19 @@ export class Tasks extends Component {
     }
   };
 
-  handleClickUpdateTask = (e: Event) => {
+  handleClickUpdateText = (e: Event) => {
     const { id } = (e.target as HTMLButtonElement).dataset;
 
     if (id) {
-      const modals = this.el.querySelector(".modals") as HTMLElement;
-
-      const task = <Task>(
-        (<Task[]>this.state.tasks).find((item) => item.id === id)
+      const divText = <HTMLDivElement>(
+        this.el.querySelector(`[data-taskText='${id}']`)
       );
 
-      new ModalUpdateTask(modals, { task, parent: this });
+      const text = <string>divText.textContent;
+
+      const modals = this.el.querySelector(".modals") as HTMLElement;
+
+      new ModalUpdateTask(modals, { id, text, updateText: this.updateText });
     }
   };
 
@@ -86,20 +106,22 @@ export class Tasks extends Component {
     "click@.buttons-up-tasks__button-filter": this.handleClickFilter,
     "click@.tasks__button-create-task": this.handleClickCreateTask,
     "click@.delete__button": this.handleClickDeleteTask,
-    "click@.update__button": this.handleClickUpdateTask,
+    "click@.update__button": this.handleClickUpdateText,
     "click@.status__input": this.handleClickStatusTask,
   };
 
   render() {
-    const listTasks = `${(<Task[]>this.state.tasks)
+    const listTasks = `${(<ITask[]>this.state.tasks)
       .map((task, i, array) => {
         let entry = "";
 
-        const dateString = `${addZero(task.createdAt.getDate())}.${addZero(
-          task.createdAt.getMonth() + 1
-        )}.${task.createdAt.getFullYear()} ${addZero(
-          task.createdAt.getHours()
-        )}:${addZero(task.createdAt.getMinutes())}`;
+        const date = new Date(task.createdAt);
+
+        const dateString = `${addZero(date.getDate())}.${addZero(
+          date.getMonth() + 1
+        )}.${date.getFullYear()} ${addZero(date.getHours())}:${addZero(
+          date.getMinutes()
+        )}`;
 
         if (i === 0) {
           entry = `<li class="tasks__task task task-header">
@@ -116,7 +138,7 @@ export class Tasks extends Component {
         }'>
             <div class="task__text text-task" title='Tags - ${task.tags.join(
               ", "
-            )}'>${task.text}</div>
+            )}' data-taskText='${task.id}'>${task.text}</div>
             <div class="task__options task__options_type_status status"><input class="status__input" type="checkbox" ${
               task.status ? "checked" : ""
             } data-id='${task.id}'/></div>

@@ -34,17 +34,13 @@ export class ModalUpdateTask extends Component {
     } else {
       const newText = input.value.replace(/[<>]/gi, "");
 
-      await storage.update(this.state.task.id, newText);
-
-      store.dispatch(updateTask({ id: this.state.task.id, data: newText }));
+      this.state.updateText(this.state.id, newText);
 
       const buttonCancel = this.el.querySelector(
         ".footer-content-modal__button-cancel"
       ) as HTMLButtonElement;
 
       buttonCancel.click();
-
-      this.state.parent.setState({ tasks: store.getState().tasks });
     }
   };
 
@@ -64,7 +60,7 @@ export class ModalUpdateTask extends Component {
             </div>
             <div class='content-modal__body body-modal body-modal-update'>               
               <label>Make changes</label>
-              <input class='body-modal-update__input _input' value="${this.state.task.text}"/>
+              <input class='body-modal-update__input _input' value="${this.state.text}"/>
               <p class='body-modal__error-message'>An empty line is not allowed</p>
             </div>
             <div class="content-modal__footer footer-content-modal">

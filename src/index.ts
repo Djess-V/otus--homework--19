@@ -1,4 +1,5 @@
 import { Router, IArgs } from "@djess-v/router";
+import EventBus from "js-event-bus";
 import { App } from "./components/App";
 import "./style/style.scss";
 import { Start } from "./components/pages/Start";
@@ -11,16 +12,21 @@ import { loadInitialDataIntoStore } from "./api/loadInitialDataIntoStore";
 
 loadInitialDataIntoStore();
 
+const eventBus = new EventBus();
+
 const { indexOfMonth, year } = getTheDate();
 
 const element = document.getElementById("app") as HTMLDivElement;
 
-new App(element, { indexOfMonth, year });
+new App(element, { indexOfMonth, year, eventBus });
+
+let homeLink = "/";
 
 if (PRODUCTION) {
   element.querySelectorAll("a").forEach((link) => {
     link.href = PREFIX + link.pathname + link.search;
   });
+  homeLink = PREFIX + homeLink;
 }
 
 const main = element.querySelector(".main") as HTMLElement;
@@ -28,95 +34,37 @@ const about = element.querySelector(".about") as HTMLElement;
 
 const router = new Router();
 
-let homeLink = "/";
-
-if (PRODUCTION) {
-  homeLink = PREFIX + homeLink;
-}
-
 router.on(homeLink, {
   onEnter: () => {
     new Start(main);
   },
-  onLeave: handleLeaveForAll(),
+  onLeave: (...args) => {
+    eventBus.emit("linking", null, args[0]);
+  },
 });
 router.on(/\/calendar(.+)?/, {
   onEnter: handleEnterForCalendar(),
-  onLeave: handleLeaveForAll(),
+  onLeave: (...args) => {
+    eventBus.emit("linking", null, args[0]);
+  },
 });
 router.on(/\/tasks(.+)?/, {
   onEnter: () => {
     new Tasks(main, { tasks: store.getState().tasks });
   },
-  onLeave: handleLeaveForAll(),
+  onLeave: (...args) => {
+    eventBus.emit("linking", null, args[0]);
+  },
 });
 router.on(/\/about/, {
   onEnter: () => {
     new About(about);
   },
-  onLeave: handleLeaveForAll(true),
-});
-
-function handleLeaveForAll(condition = false) {
-  function removeModalAbout() {
+  onLeave: (...args) => {
     about.innerHTML = "";
-  }
-
-  return (...args: IArgs[]) => {
-    const regExp = /(\/calendar)|(\/tasks)|(\/about)/;
-
-    const currentRegExpExecArray = regExp.exec(args[0].currentPath);
-    let currentMatch: string;
-
-    if (!currentRegExpExecArray) {
-      if (args[0].currentPath !== "/") {
-        return;
-      }
-
-      currentMatch = args[0].currentPath;
-    } else {
-      currentMatch = currentRegExpExecArray[0];
-    }
-
-    if (!args[0].previousPath) {
-      return;
-    }
-
-    const prevRegExpExecArray = regExp.exec(args[0].previousPath);
-    let prevMatch: string;
-
-    if (!prevRegExpExecArray) {
-      if (args[0].previousPath !== "/") {
-        return;
-      }
-      prevMatch = args[0].previousPath;
-    } else {
-      prevMatch = prevRegExpExecArray[0];
-    }
-
-    if (currentMatch === prevMatch) {
-      return;
-    }
-
-    const currentLink = element.querySelector(
-      `[data-id='${currentMatch}']`
-    ) as HTMLAnchorElement;
-
-    const prevLink = element.querySelector(
-      `[data-id='${prevMatch}']`
-    ) as HTMLAnchorElement;
-
-    prevLink.classList.remove("nav-header__link_active");
-
-    if (currentLink.dataset.id !== "/") {
-      currentLink.classList.add("nav-header__link_active");
-    }
-
-    if (condition) {
-      removeModalAbout();
-    }
-  };
-}
+    eventBus.emit("linking", null, args[0]);
+  },
+});
 
 function handleEnterForCalendar() {
   return (...args: IArgs[]) => {

@@ -4,7 +4,6 @@ import { ITask, getNewTask } from "../../api/Task";
 import { ModalCreateTask } from "../modals/ModalCreateTask";
 import { ModalFilter } from "../modals/ModalFilter";
 import { ModalUpdateTask } from "../modals/ModalUpdateTask";
-import { storage } from "../../api/loadInitialDataIntoStore";
 import { store } from "../../store/store";
 import { addTask, deleteTask, updateTask } from "../../slices/sliceTask";
 
@@ -12,7 +11,7 @@ export class Tasks extends Component {
   createTask = async (text: string, tags: string) => {
     const task = getNewTask(text, tags);
 
-    await storage.createTask(task);
+    await this.state.storage.createTask(task);
 
     store.dispatch(addTask(task));
 
@@ -20,7 +19,7 @@ export class Tasks extends Component {
   };
 
   updateText = async (id: string, text: string) => {
-    await storage.update(id, text);
+    await this.state.storage.update(id, text);
 
     store.dispatch(updateTask({ id, data: text }));
 
@@ -63,7 +62,7 @@ export class Tasks extends Component {
     const { id } = (e.target as HTMLButtonElement).dataset;
 
     if (id) {
-      await storage.delete(id);
+      await this.state.storage.delete(id);
 
       store.dispatch(deleteTask(id));
 
@@ -91,7 +90,11 @@ export class Tasks extends Component {
     const { id } = (e.target as HTMLInputElement).dataset;
 
     if (id) {
-      await storage.update(id, "", (e.target as HTMLInputElement).checked);
+      await this.state.storage.update(
+        id,
+        "",
+        (e.target as HTMLInputElement).checked
+      );
 
       store.dispatch(
         updateTask({ id, data: (e.target as HTMLInputElement).checked })
@@ -111,7 +114,41 @@ export class Tasks extends Component {
   };
 
   render() {
-    const listTasks = `${(<ITask[]>this.state.tasks)
+    let taskSelection: ITask[];
+    let createIsDisabled = false;
+
+    if (
+      "month" in this.state.dateInfo &&
+      "year" in this.state.dateInfo &&
+      "day" in this.state.dateInfo
+    ) {
+      taskSelection = <ITask[]>this.state.tasks.filter((task: ITask) => {
+        const taskDate = new Date(task.createdAt);
+
+        return (
+          this.state.dateInfo.year === String(taskDate.getFullYear()) &&
+          this.state.dateInfo.month === String(taskDate.getMonth() + 1) &&
+          this.state.dateInfo.day === String(taskDate.getDate())
+        );
+      });
+
+      createIsDisabled =
+        (this.state.dateNow as Date).getTime() -
+          new Date(
+            Number(this.state.dateInfo.year),
+            Number(this.state.dateInfo.month) - 1,
+            Number(this.state.dateInfo.day),
+            23,
+            59,
+            59,
+            999
+          ).getTime() >
+        0;
+    } else {
+      taskSelection = this.state.tasks;
+    }
+
+    const listTasks = `${taskSelection
       .map((task, i, array) => {
         let entry = "";
 
@@ -169,7 +206,11 @@ export class Tasks extends Component {
       <ol class="tasks-container">
       ${listTasks}
       </ol>
-      <button class="tasks__button-create-task _button">Create a task</button>     
+      ${
+        createIsDisabled
+          ? ""
+          : "<button class='tasks__button-create-task _button' >Create a task</button>"
+      }     
     </div>
     <div class="modals" ></div>    
     `;

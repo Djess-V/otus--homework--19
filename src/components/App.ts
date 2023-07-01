@@ -45,10 +45,6 @@ export class App extends Component {
       prevMatch = prevRegExpExecArray[0];
     }
 
-    if (currentMatch === prevMatch) {
-      return;
-    }
-
     const currentLink = this.el.querySelector(
       `[data-id='${currentMatch}']`
     ) as HTMLAnchorElement;
@@ -70,9 +66,9 @@ export class App extends Component {
     <div class="header__container header-container _container" >         
         <a class="header-container__title" data-id="/" href='/' >My Calendar</a>              
         <nav class="header-container__nav nav-header" >
-          <a class="nav-header__link" data-id="/calendar" href='/calendar?month=${
-            months[this.state.indexOfMonth]
-          }&year=${this.state.year}' >CALENDAR</a>
+          <a class="nav-header__link" data-id="/calendar" href='/calendar?year=${
+            this.state.year
+          }&month=${months[this.state.indexOfMonth]}' >CALENDAR</a>
           <a class="nav-header__link" data-id="/tasks" href='/tasks' >TASKS</a>
           <a class="nav-header__link" data-id="/about" href='/about' >ABOUT</a>
           <img

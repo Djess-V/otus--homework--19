@@ -1,6 +1,3 @@
-import { storage } from "../../api/loadInitialDataIntoStore";
-import { updateTask } from "../../slices/sliceTask";
-import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 export class ModalUpdateTask extends Component {

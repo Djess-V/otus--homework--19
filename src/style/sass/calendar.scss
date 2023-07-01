@@ -3,11 +3,17 @@
 .calendar {
   display: flex;
   flex-direction: column;
-  font-size: 3.1vmin;
+  font-size: 3vw;
   margin: 20px;
   width: 80%;
   max-width: 700px;
   color: #423b3b;
+}
+
+@media (min-width: 900px) {
+  .calendar {
+    font-size: 1.3rem;
+  }
 }
 
 @media (max-width: 460px) {
@@ -92,6 +98,9 @@
   }
 }
 
+.tasks-exists {
+  border: 2px dotted green;
+}
 td[data-today="today"] a {
   background-color: #9fcee7;
 }

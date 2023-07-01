@@ -51,7 +51,6 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "no-param-reassign": "off",
-    "no-console": "off",
     "no-loop-func": "off",
     "no-new": "off",
     "no-constructor-return": "off",

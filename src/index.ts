@@ -8,13 +8,16 @@ import { Tasks } from "./components/pages/Tasks";
 import { About } from "./components/modals/About";
 import { IDateInfo, getTheDate } from "./service/functions";
 import { store } from "./store/store";
-import { loadInitialDataIntoStore } from "./api/loadInitialDataIntoStore";
+import { LocalStorage } from "./api/LocalStorage";
+import { unloadTasksFromLS } from "./slices/sliceTask";
+
+const storage = new LocalStorage("@djess-v/my-calendar");
 
 loadInitialDataIntoStore();
 
 const eventBus = new EventBus();
 
-const { indexOfMonth, year } = getTheDate();
+const { indexOfMonth, year, dateNow } = getTheDate();
 
 const element = document.getElementById("app") as HTMLDivElement;
 
@@ -38,21 +41,19 @@ router.on(homeLink, {
   onEnter: () => {
     new Start(main);
   },
-  onLeave: (...args) => {
+  onBeforeEnter: (...args) => {
     eventBus.emit("linking", null, args[0]);
   },
 });
 router.on(/\/calendar(.+)?/, {
   onEnter: handleEnterForCalendar(),
-  onLeave: (...args) => {
+  onBeforeEnter: (...args) => {
     eventBus.emit("linking", null, args[0]);
   },
 });
 router.on(/\/tasks(.+)?/, {
-  onEnter: () => {
-    new Tasks(main, { tasks: store.getState().tasks });
-  },
-  onLeave: (...args) => {
+  onEnter: handleEnterForTasks(),
+  onBeforeEnter: (...args) => {
     eventBus.emit("linking", null, args[0]);
   },
 });
@@ -60,9 +61,11 @@ router.on(/\/about/, {
   onEnter: () => {
     new About(about);
   },
+  onBeforeEnter: (...args) => {
+    eventBus.emit("linking", null, args[0]);
+  },
   onLeave: (...args) => {
     about.innerHTML = "";
-    eventBus.emit("linking", null, args[0]);
   },
 });
 
@@ -74,7 +77,7 @@ function handleEnterForCalendar() {
       dateInfo = getTheDate(args[0].state);
     }
 
-    new Calendar(main, dateInfo);
+    new Calendar(main, { dateInfo, tasks: store.getState().tasks });
 
     if (PRODUCTION) {
       main.querySelectorAll("a").forEach((link) => {
@@ -82,4 +85,24 @@ function handleEnterForCalendar() {
       });
     }
   };
+}
+
+function handleEnterForTasks() {
+  return (...args: IArgs[]) => {
+    new Tasks(main, {
+      tasks: store.getState().tasks,
+      storage,
+      dateInfo: args[0].state,
+      dateNow,
+    });
+  };
+}
+
+async function loadInitialDataIntoStore() {
+  await storage.createStorage();
+
+  const defaultTask = await storage.fetchAll();
+
+  store.dispatch(unloadTasksFromLS(defaultTask));
+  router.go(window.location.href);
 }

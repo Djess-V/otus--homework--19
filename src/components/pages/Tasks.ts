@@ -116,6 +116,7 @@ export class Tasks extends Component {
   render() {
     let taskSelection: ITask[];
     let createIsDisabled = false;
+    let showAllTasks = false;
 
     if (
       "month" in this.state.dateInfo &&
@@ -146,7 +147,10 @@ export class Tasks extends Component {
         0;
     } else {
       taskSelection = this.state.tasks;
+      showAllTasks = true;
     }
+
+    const tasksExist = !!taskSelection.length;
 
     const listTasks = `${taskSelection
       .map((task, i, array) => {
@@ -193,9 +197,16 @@ export class Tasks extends Component {
       .join("")}`;
 
     return `
-    <div class="tasks _container">
-      <form class="tasks__form-search form-search-tasks">
-        <input class="form-search-tasks__inpit _input" required/>
+    ${
+      tasksExist
+        ? `<div class='tasks _container'>
+        ${
+          showAllTasks
+            ? "<div class='all-tasks' >These are all your tasks!</div>"
+            : ""
+        } 
+       <form class='tasks__form-search form-search-tasks'>
+        <input class='form-search-tasks__inpit _input' required/>
         <button class="form-search-tasks__button _button" type="submit">Find the task</button>
         <p class='form-search-tasks__message'>No records were found for your query!</p>
       </form>
@@ -211,7 +222,9 @@ export class Tasks extends Component {
           ? ""
           : "<button class='tasks__button-create-task _button' >Create a task</button>"
       }     
-    </div>
+    </div>`
+        : `<div class='no-tasks' >No Tasks!</div>`
+    }
     <div class="modals" ></div>    
     `;
   }

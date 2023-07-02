@@ -1,4 +1,4 @@
-import Component from "../basic/Component";
+/* import Component from "../basic/Component";
 import { filterData } from "../../service/constants";
 import { ITask } from "../../slices/sliceTask";
 
@@ -188,3 +188,4 @@ export class ModalFilter extends Component {
       `;
   }
 }
+ */

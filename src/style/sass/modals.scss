@@ -148,6 +148,8 @@
 }
 
 .body-modal-create__input_type_create,
+.body-modal-create__input_type_create-hours,
+.body-modal-create__input_type_create-minutes,
 .body-modal-create__input_type_tags,
 .body-modal-update__input,
 .item-filter-body__tag-input {
@@ -157,6 +159,8 @@
 
 @media (max-width: 675px) {
   .body-modal-create__input_type_create,
+  .body-modal-create__input_type_create-hours,
+  .body-modal-create__input_type_create-minutes,
   .body-modal-create__input_type_tags,
   .body-modal-update__input,
   .item-filter-body__tag-input {

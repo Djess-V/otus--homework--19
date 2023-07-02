@@ -1,7 +1,6 @@
 import { IArgs } from "@djess-v/router";
 import Component from "./basic/Component";
 import menu from "../assets/images/menu-bars.svg";
-import { months } from "../service/constants";
 
 export class App extends Component {
   constructor(
@@ -66,10 +65,8 @@ export class App extends Component {
     <div class="header__container header-container _container" >         
         <a class="header-container__title" data-id="/" href='/' >My Calendar</a>              
         <nav class="header-container__nav nav-header" >
-          <a class="nav-header__link" data-id="/calendar" href='/calendar?year=${
-            this.state.year
-          }&month=${months[this.state.indexOfMonth]}' >CALENDAR</a>
-          <a class="nav-header__link" data-id="/tasks" href='/tasks' >TASKS</a>
+          <a class="nav-header__link" data-id="/calendar" href='/calendar?year=${this.state.year}&month=${this.state.month}&completed=0' >CALENDAR</a>
+          <a class="nav-header__link" data-id="/tasks" href='/tasks?year=${this.state.year}&month=${this.state.month}&day=${this.state.day}&completed=0' >TASKS</a>
           <a class="nav-header__link" data-id="/about" href='/about' >ABOUT</a>
           <img
           class="nav-header__nav-icon"

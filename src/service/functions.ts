@@ -1,43 +1,41 @@
 import { IState } from "@djess-v/router";
-import { months } from "./constants";
 
 export interface IDateInfo {
-  dateNow: Date;
   firstNumberOfMonth: Date;
-  indexOfMonth: number;
+  month: number;
   year: number;
+  day: number;
 }
 
-export function getTheDate(state?: IState): IDateInfo {
-  const dateNow = new Date();
-
+export function getTheDate(now: Date, state?: IState): IDateInfo {
   let firstNumberOfMonth: Date;
-  let indexOfMonth: number;
+  let month: number;
   let year: number;
+  let day: number;
 
   if (state) {
-    firstNumberOfMonth = new Date(
-      Number(state.year),
-      months.indexOf(state.month),
-      1
-    );
+    firstNumberOfMonth = new Date(Number(state.year), Number(state.month), 1);
 
-    indexOfMonth = months.indexOf(state.month);
+    month = Number(state.month);
 
     year = Number(state.year);
+
+    day = Number(state.day);
   } else {
-    firstNumberOfMonth = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
+    firstNumberOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    indexOfMonth = dateNow.getMonth();
+    month = now.getMonth();
 
-    year = dateNow.getFullYear();
+    year = now.getFullYear();
+
+    day = now.getDate();
   }
 
   return {
-    dateNow,
     firstNumberOfMonth,
-    indexOfMonth,
+    month,
     year,
+    day,
   };
 }
 

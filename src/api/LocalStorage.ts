@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ITask, getNewTask } from "./Task";
+import { IDataToCreateTheDate, ITask, getNewTask } from "./Task";
 import { IValue } from "../service/constants";
 
 export class LocalStorage {
@@ -21,7 +21,17 @@ export class LocalStorage {
     this.tasks = await this.readFromStorage();
 
     if (this.tasks.length === 0) {
-      this.tasks.push(getNewTask("First task", "task"));
+      const now = new Date();
+
+      const dataToCreateTheDate: IDataToCreateTheDate = {
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        day: now.getDate(),
+        hours: now.getHours(),
+        minutes: now.getMinutes(),
+      };
+
+      this.tasks.push(getNewTask("First task", "task", dataToCreateTheDate));
 
       this.saveInStorage(this.tasks);
     }

@@ -43,18 +43,8 @@ hr {
   }
 }
 
-.buttons-up-tasks {
-  align-self: flex-start;
-  margin: 10px 0 20px;
-
-  &__button-filter {
-    margin-right: 15px;
-  }
-}
-
-.tasks__message {
-  display: none;
-  color: rgb(182, 48, 48);
+.tasks__checkbox {
+  margin: 25px 0 35px;
 }
 
 .task {
@@ -100,11 +90,11 @@ hr {
   width: 14%;
 }
 
-.task__createdAt {
+.task__dateOfExecution {
   width: 20%;
 }
 
-.task__createdAt_value {
+.task__dateOfExecution_value {
   font-size: 0.7rem;
 }
 
@@ -118,7 +108,7 @@ hr {
   .tasks-container > * {
     font-size: 3.5vmin;
   }
-  .task__createdAt_value {
+  .task__dateOfExecution_value {
     font-size: 2.5vmin;
   }
 }

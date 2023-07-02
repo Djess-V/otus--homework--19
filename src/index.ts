@@ -17,11 +17,13 @@ loadInitialDataIntoStore();
 
 const eventBus = new EventBus();
 
-const { indexOfMonth, year, dateNow } = getTheDate();
+const now = new Date();
+
+const { month, year, day } = getTheDate(now);
 
 const element = document.getElementById("app") as HTMLDivElement;
 
-new App(element, { indexOfMonth, year, eventBus });
+new App(element, { month, year, day, eventBus });
 
 let homeLink = "/";
 
@@ -71,13 +73,23 @@ router.on(/\/about/, {
 
 function handleEnterForCalendar() {
   return (...args: IArgs[]) => {
-    let dateInfo: IDateInfo = getTheDate();
+    let dateInfo: IDateInfo = getTheDate(now);
+    let completed = false;
+    let { tasks } = store.getState();
 
     if ("month" in args[0].state && "year" in args[0].state) {
-      dateInfo = getTheDate(args[0].state);
+      dateInfo = getTheDate(now, args[0].state);
     }
 
-    new Calendar(main, { dateInfo, tasks: store.getState().tasks });
+    if ("completed" in args[0].state) {
+      completed = Boolean(Number(args[0].state.completed));
+    }
+
+    if (completed) {
+      tasks = tasks.filter((task) => task.status);
+    }
+
+    new Calendar(main, { now, dateInfo, completed, tasks });
 
     if (PRODUCTION) {
       main.querySelectorAll("a").forEach((link) => {
@@ -89,18 +101,37 @@ function handleEnterForCalendar() {
 
 function handleEnterForTasks() {
   return (...args: IArgs[]) => {
+    let dateInfo: IDateInfo;
+    let completed = false;
+    const { tasks } = store.getState();
+
+    if (
+      "month" in args[0].state &&
+      "year" in args[0].state &&
+      "day" in args[0].state
+    ) {
+      dateInfo = getTheDate(now, args[0].state);
+    } else {
+      dateInfo = getTheDate(now);
+    }
+
+    if ("completed" in args[0].state) {
+      completed = Boolean(Number(args[0].state.completed));
+    }
+
     new Tasks(main, {
-      tasks: store.getState().tasks,
+      tasks,
       storage,
-      dateInfo: args[0].state,
-      dateNow,
+      dateInfo,
+      now,
+      completed,
     });
   };
 }
 
 async function loadInitialDataIntoStore() {
   await storage.createStorage();
-
+  // localStorage.setItem("@djess-v/my-calendar", "[]");
   const defaultTask = await storage.fetchAll();
 
   store.dispatch(unloadTasksFromLS(defaultTask));

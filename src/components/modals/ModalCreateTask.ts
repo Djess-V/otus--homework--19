@@ -1,5 +1,12 @@
 import Component from "../basic/Component";
 
+interface IFormElements extends HTMLFormControlsCollection {
+  description: HTMLInputElement;
+  hours: HTMLInputElement;
+  minutes: HTMLInputElement;
+  tags: HTMLInputElement;
+}
+
 export class ModalCreateTask extends Component {
   handleClickCancel = () => {
     const modalBackdrop = this.el.querySelector(
@@ -13,19 +20,14 @@ export class ModalCreateTask extends Component {
     modalWrapper.remove();
   };
 
-  handleClickCreateTask = async () => {
-    const inputText = this.el.querySelector(
-      ".body-modal-create__input_type_create"
-    ) as HTMLInputElement;
+  handleClickCreateTask = async (e: Event) => {
+    e.preventDefault();
 
-    const inputTags = this.el.querySelector(
-      ".body-modal-create__input_type_tags"
-    ) as HTMLInputElement;
+    const elements = (e.target as HTMLFormElement).elements as IFormElements;
 
     if (
-      inputText.value === "" ||
       !/^$|^([а-яёА-ЯЁa-zA-Z0-9\s]+\s?)$|^([а-яёА-ЯЁa-zA-Z0-9\s]+,\s?)+/.test(
-        inputTags.value
+        elements.tags.value
       )
     ) {
       const errorMessage = this.el.querySelector(
@@ -38,7 +40,12 @@ export class ModalCreateTask extends Component {
         errorMessage.style.display = "";
       }, 7000);
     } else {
-      this.state.createTask(inputText.value, inputTags.value);
+      this.state.createTask(
+        elements.description.value,
+        elements.tags.value,
+        elements.hours.value,
+        elements.minutes.value
+      );
 
       const buttonCancel = this.el.querySelector(
         ".footer-content-modal__button-cancel"
@@ -50,7 +57,7 @@ export class ModalCreateTask extends Component {
 
   events = {
     "click@.footer-content-modal__button-cancel": this.handleClickCancel,
-    "click@.footer-content-modal__button-create": this.handleClickCreateTask,
+    "submit@.body-modal-create": this.handleClickCreateTask,
   };
 
   render() {
@@ -66,17 +73,23 @@ export class ModalCreateTask extends Component {
                <div class="content-modal__header">
                  <h3 class="content-modal__header_title">Add task</h3>
                </div>
-               <div class='content-modal__body body-modal body-modal-create'>
+               <form id="createForm" class='content-modal__body body-modal body-modal-create'>
                    <label class='body-modal-create__label'>Describe</label>
-                   <input class='body-modal-create__input_type_create _input'/>
-                   <br/>                  
+                   <input name="description" class='body-modal-create__input_type_create _input' required/>
+                   <br/>
+                   <label class='body-modal-create__label'>Complete (hours)</label>
+                   <input name="hours" class='body-modal-create__input_type_create-hours _input' type="number" step="1" value="0" min="0" max="23" required/>
+                   <br/>
+                   <label class='body-modal-create__label'>Complete (minutes)</label>
+                   <input name="minutes" class='body-modal-create__input_type_create-minutes _input' type="number" step="1" value="0" min="0" max="59" required/>
+                   <br/>                   
                    <label class='body-modal-create__label'>Tags</label>
-                   <input class='body-modal-create__input_type_tags _input' placeholder='Tags, enter a comma'/> 
+                   <input name="tags" class='body-modal-create__input_type_tags _input' placeholder='Tags, enter a comma'/> 
                    <p class='body-modal__message'>Tags are displayed when you hover the mouse cursor over the task text</p>                 
-                   <p class='body-modal__error-message'>The task description field should not be empty, tags can be left blank or filled in as required</p>
-               </div>
+                   <p class='body-modal__error-message'>The tag field may be blank or filled out as required</p>
+               </form>
                <div class="content-modal__footer footer-content-modal">
-                 <button class="footer-content-modal__button-create _button">
+                 <button form="createForm" class="footer-content-modal__button-create _button" type="submit" >
                      Add
                    </button>              
                    <button class="footer-content-modal__button-cancel _button">

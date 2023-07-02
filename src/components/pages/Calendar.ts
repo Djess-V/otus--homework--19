@@ -7,10 +7,10 @@ export class Calendar extends Component {
     const taskSelection: Record<string, boolean> = {};
 
     <ITask[]>this.state.tasks.forEach((task: ITask) => {
-      const taskDate = new Date(task.createdAt);
+      const taskDate = new Date(task.dateOfExecution);
 
       if (
-        this.state.dateInfo.indexOfMonth === taskDate.getMonth() &&
+        this.state.dateInfo.month === taskDate.getMonth() &&
         this.state.dateInfo.year === taskDate.getFullYear()
       ) {
         taskSelection[
@@ -41,48 +41,42 @@ export class Calendar extends Component {
             }
             return `
               <td
-                data-id='1/${
-                  this.state.dateInfo.firstNumberOfMonth.getMonth() + 1
-                }/${this.state.dateInfo.firstNumberOfMonth.getFullYear()}'
+                data-id='1/${this.state.dateInfo.month}/${
+              this.state.dateInfo.year
+            }'
                 data-today='${
-                  this.state.dateInfo.dateNow.getFullYear() ===
-                    this.state.dateInfo.firstNumberOfMonth.getFullYear() &&
-                  this.state.dateInfo.dateNow.getMonth() ===
-                    this.state.dateInfo.firstNumberOfMonth.getMonth() &&
-                  this.state.dateInfo.dateNow.getDate() === 1
+                  this.state.now.getFullYear() === this.state.dateInfo.year &&
+                  this.state.now.getMonth() === this.state.dateInfo.month &&
+                  this.state.now.getDate() === 1
                     ? "today"
                     : ``
                 }'
                 class="table-calendar__cell_currentMonth"
               >
               <a class='${
-                `${String(
-                  this.state.dateInfo.firstNumberOfMonth.getFullYear()
-                )}/${String(
-                  this.state.dateInfo.firstNumberOfMonth.getMonth()
+                `${String(this.state.dateInfo.year)}/${String(
+                  this.state.dateInfo.month
                 )}/1` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${this.state.dateInfo.firstNumberOfMonth.getFullYear()}&month=${
-              this.state.dateInfo.firstNumberOfMonth.getMonth() + 1
-            }&day=1" >1</a>
+              }' href="/tasks?year=${this.state.dateInfo.year}&month=${
+              this.state.dateInfo.month
+            }&day=1&completed=${this.state.completed ? "1" : "0"}" >1</a>
               </td>
             `;
           }
           let searchDate: Date;
           if (index + 1 < dayWeek) {
             searchDate = new Date(
-              this.state.dateInfo.firstNumberOfMonth.getFullYear(),
-              this.state.dateInfo.firstNumberOfMonth.getMonth(),
-              this.state.dateInfo.firstNumberOfMonth.getDate() -
-                (dayWeek - (index + 1))
+              this.state.dateInfo.year,
+              this.state.dateInfo.month,
+              1 - (dayWeek - (index + 1))
             );
           } else {
             searchDate = new Date(
-              this.state.dateInfo.firstNumberOfMonth.getFullYear(),
-              this.state.dateInfo.firstNumberOfMonth.getMonth(),
-              this.state.dateInfo.firstNumberOfMonth.getDate() +
-                (index + 1 - dayWeek)
+              this.state.dateInfo.year,
+              this.state.dateInfo.month,
+              1 + (index + 1 - dayWeek)
             );
           }
           searchDay = searchDate.getDate();
@@ -91,23 +85,19 @@ export class Calendar extends Component {
           }
           return `
               <td
-                data-id='${searchDay}/${
-            searchDate.getMonth() + 1
-          }/${this.state.dateInfo.firstNumberOfMonth.getFullYear()}'
+                data-id='${searchDay}/${searchDate.getMonth() + 1}/${
+            this.state.dateInfo.year
+          }'
                 data-today='${
-                  this.state.dateInfo.dateNow.getFullYear() ===
-                    this.state.dateInfo.firstNumberOfMonth.getFullYear() &&
-                  this.state.dateInfo.dateNow.getMonth() ===
-                    this.state.dateInfo.firstNumberOfMonth.getMonth() &&
-                  this.state.dateInfo.dateNow.getDate() === searchDay &&
-                  this.state.dateInfo.dateNow.getMonth() ===
-                    searchDate.getMonth()
+                  this.state.now.getFullYear() === this.state.dateInfo.year &&
+                  this.state.now.getMonth() === this.state.dateInfo.month &&
+                  this.state.now.getDate() === searchDay &&
+                  this.state.now.getMonth() === searchDate.getMonth()
                     ? "today"
                     : ``
                 }'
                 class='${
-                  searchDate.getMonth() !==
-                  this.state.dateInfo.firstNumberOfMonth.getMonth()
+                  searchDate.getMonth() !== this.state.dateInfo.month
                     ? "table-calendar__cell_anotherMonth"
                     : "table-calendar__cell_currentMonth"
                 }'
@@ -118,9 +108,9 @@ export class Calendar extends Component {
                 )}/${String(searchDay)}` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${searchDate.getFullYear()}&month=${
-            searchDate.getMonth() + 1
-          }&day=${searchDate.getDate()}" >${searchDay}</a>
+              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}&completed=${
+            this.state.completed ? "1" : "0"
+          }" >${searchDay}</a>
               </td>
             `;
         });
@@ -128,28 +118,25 @@ export class Calendar extends Component {
         cells = [...Array(7)].map(() => {
           passingValue += 1;
           const searchDate = new Date(
-            this.state.dateInfo.firstNumberOfMonth.getFullYear(),
-            this.state.dateInfo.firstNumberOfMonth.getMonth(),
+            this.state.dateInfo.year,
+            this.state.dateInfo.month,
             passingValue
           );
           const otherSearchDay = searchDate.getDate();
           return `
             <td
-              data-id='${otherSearchDay}/${
-            searchDate.getMonth() + 1
-          }/${this.state.dateInfo.firstNumberOfMonth.getFullYear()}'
+              data-id='${otherSearchDay}/${searchDate.getMonth() + 1}/${
+            this.state.dateInfo.year
+          }'
               data-today='${
-                this.state.dateInfo.dateNow.getFullYear() ===
-                  this.state.dateInfo.firstNumberOfMonth.getFullYear() &&
-                this.state.dateInfo.dateNow.getMonth() ===
-                  searchDate.getMonth() &&
-                this.state.dateInfo.dateNow.getDate() === otherSearchDay
+                this.state.now.getFullYear() === this.state.dateInfo.year &&
+                this.state.now.getMonth() === searchDate.getMonth() &&
+                this.state.now.getDate() === otherSearchDay
                   ? "today"
                   : ``
               }'
               class='${
-                searchDate.getMonth() !==
-                this.state.dateInfo.firstNumberOfMonth.getMonth()
+                searchDate.getMonth() !== this.state.dateInfo.month
                   ? "table-calendar__cell_anotherMonth"
                   : "table-calendar__cell_currentMonth"
               }'
@@ -160,9 +147,9 @@ export class Calendar extends Component {
                 )}/${String(otherSearchDay)}` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${searchDate.getFullYear()}&month=${
-            searchDate.getMonth() + 1
-          }&day=${searchDate.getDate()}" >${otherSearchDay}</a>
+              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}&completed=${
+            this.state.completed ? "1" : "0"
+          }" >${otherSearchDay}</a>
             </td>
           `;
         });
@@ -185,30 +172,35 @@ export class Calendar extends Component {
 
     return `
     <div class="calendar">
+      <div class="calendar__checkbox checkbox-completed">
+        <a class="checkbox-completed__link" href='/calendar?year=${
+          this.state.dateInfo.year
+        }&month=${this.state.dateInfo.month}&completed=${
+      this.state.completed ? "0" : "1"
+    }'>
+          <label class="checkbox-completed__container">Show completed
+          <input type="checkbox" ${this.state.completed ? "checked" : ""}>
+          <span class="checkmark"></span>
+        </label></a>        
+      </div>      
       <div class="calendar__header header-calendar">        
-        <a class="header-calendar__arrow-left" href="/calendar?month=${
-          this.state.dateInfo.indexOfMonth !== 0
-            ? months[this.state.dateInfo.indexOfMonth - 1]
-            : months[11]
-        }&year=${
-      this.state.dateInfo.indexOfMonth !== 0
-        ? this.state.dateInfo.year
-        : this.state.dateInfo.year - 1
-    }" >&larr;</a>
+        <a class="header-calendar__arrow-left" href="/calendar?year=${
+          this.state.dateInfo.month !== 0
+            ? this.state.dateInfo.year
+            : this.state.dateInfo.year - 1
+        }&month=${
+      this.state.dateInfo.month !== 0 ? this.state.dateInfo.month - 1 : 11
+    }&completed=${this.state.completed ? "1" : "0"}" >&larr;</a>
         <div class="header-calendar__title">
-          ${
-            months[this.state.dateInfo.firstNumberOfMonth.getMonth()]
-          } ${this.state.dateInfo.firstNumberOfMonth.getFullYear()}
+          ${months[this.state.dateInfo.month]} ${this.state.dateInfo.year}
         </div>
-        <a class="header-calendar__arrow-right" href="/calendar?month=${
-          this.state.dateInfo.indexOfMonth !== 11
-            ? months[this.state.dateInfo.indexOfMonth + 1]
-            : months[0]
-        }&year=${
-      this.state.dateInfo.indexOfMonth !== 11
-        ? this.state.dateInfo.year
-        : this.state.dateInfo.year + 1
-    }" >&rarr;</a>        
+        <a class="header-calendar__arrow-right" href="/calendar?year=${
+          this.state.dateInfo.month !== 11
+            ? this.state.dateInfo.year
+            : this.state.dateInfo.year + 1
+        }&month=${
+      this.state.dateInfo.month !== 11 ? this.state.dateInfo.month + 1 : 0
+    }&completed=${this.state.completed ? "1" : "0"}" >&rarr;</a>        
       </div>
       <table class="calendar__table table-calendar">
         ${tHead}

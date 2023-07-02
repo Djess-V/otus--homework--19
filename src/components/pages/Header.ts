@@ -1,5 +1,4 @@
 import Component from "../basic/Component";
-import menu from "../../assets/images/menu-bars.svg";
 
 export class Header extends Component {
   render() {
@@ -17,12 +16,7 @@ export class Header extends Component {
           }" href='/tasks?all=1&completed=0' >ALL TASKS</a>
           <a class="nav-header__link ${
             this.state.link === "about" ? "nav-header__link_active" : ""
-          }" href='/about' >ABOUT</a>
-          <img
-          class="nav-header__nav-icon"
-          src=${menu}
-          alt="Nav-icon"
-        />
+          }" href='/about' >ABOUT</a>          
         </nav>
       </div>
     `;

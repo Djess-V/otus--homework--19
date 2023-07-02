@@ -1,5 +1,4 @@
 import { Router, IArgs } from "@djess-v/router";
-import EventBus from "js-event-bus";
 import { App } from "./components/App";
 import "./style/style.scss";
 import { Start } from "./components/pages/Start";
@@ -7,15 +6,14 @@ import { Calendar } from "./components/pages/Calendar";
 import { Tasks } from "./components/pages/Tasks";
 import { About } from "./components/modals/About";
 import { IDateInfo, getTheDate } from "./service/functions";
-import { store } from "./store/store";
+import { RootState, store } from "./store/store";
 import { LocalStorage } from "./api/LocalStorage";
 import { unloadTasksFromLS } from "./slices/sliceTask";
+import { Header } from "./components/pages/Header";
 
 const storage = new LocalStorage("@djess-v/my-calendar");
 
 loadInitialDataIntoStore();
-
-const eventBus = new EventBus();
 
 const now = new Date();
 
@@ -23,7 +21,7 @@ const { month, year, day } = getTheDate(now);
 
 const element = document.getElementById("app") as HTMLDivElement;
 
-new App(element, { month, year, day, eventBus });
+new App(element);
 
 let homeLink = "/";
 
@@ -34,6 +32,7 @@ if (PRODUCTION) {
   homeLink = PREFIX + homeLink;
 }
 
+const header = element.querySelector(".header") as HTMLElement;
 const main = element.querySelector(".main") as HTMLElement;
 const about = element.querySelector(".about") as HTMLElement;
 
@@ -41,30 +40,20 @@ const router = new Router();
 
 router.on(homeLink, {
   onEnter: () => {
+    new Header(header, { month, year, day });
     new Start(main);
-  },
-  onBeforeEnter: (...args) => {
-    eventBus.emit("linking", null, args[0]);
   },
 });
 router.on(/\/calendar(.+)?/, {
   onEnter: handleEnterForCalendar(),
-  onBeforeEnter: (...args) => {
-    eventBus.emit("linking", null, args[0]);
-  },
 });
 router.on(/\/tasks(.+)?/, {
   onEnter: handleEnterForTasks(),
-  onBeforeEnter: (...args) => {
-    eventBus.emit("linking", null, args[0]);
-  },
 });
 router.on(/\/about/, {
   onEnter: () => {
+    new Header(header, { link: "about", month, year, day });
     new About(about);
-  },
-  onBeforeEnter: (...args) => {
-    eventBus.emit("linking", null, args[0]);
   },
   onLeave: (...args) => {
     about.innerHTML = "";
@@ -75,7 +64,7 @@ function handleEnterForCalendar() {
   return (...args: IArgs[]) => {
     let dateInfo: IDateInfo = getTheDate(now);
     let completed = false;
-    let { tasks } = store.getState();
+    let { tasks } = <RootState>store.getState();
 
     if ("month" in args[0].state && "year" in args[0].state) {
       dateInfo = getTheDate(now, args[0].state);
@@ -88,7 +77,7 @@ function handleEnterForCalendar() {
     if (completed) {
       tasks = tasks.filter((task) => task.status);
     }
-
+    new Header(header, { link: "calendar", month, year, day });
     new Calendar(main, { now, dateInfo, completed, tasks });
 
     if (PRODUCTION) {
@@ -102,8 +91,13 @@ function handleEnterForCalendar() {
 function handleEnterForTasks() {
   return (...args: IArgs[]) => {
     let dateInfo: IDateInfo;
+    let showAll = false;
     let completed = false;
-    const { tasks } = store.getState();
+    const { tasks } = <RootState>store.getState();
+
+    if ("all" in args[0].state) {
+      showAll = Boolean(Number(args[0].state.all));
+    }
 
     if (
       "month" in args[0].state &&
@@ -118,20 +112,21 @@ function handleEnterForTasks() {
     if ("completed" in args[0].state) {
       completed = Boolean(Number(args[0].state.completed));
     }
-
+    new Header(header, { link: "tasks", month, year, day });
     new Tasks(main, {
       tasks,
       storage,
       dateInfo,
       now,
       completed,
+      showAll,
     });
   };
 }
 
 async function loadInitialDataIntoStore() {
   await storage.createStorage();
-  // localStorage.setItem("@djess-v/my-calendar", "[]");
+
   const defaultTask = await storage.fetchAll();
 
   store.dispatch(unloadTasksFromLS(defaultTask));

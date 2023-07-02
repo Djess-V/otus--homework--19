@@ -121,13 +121,9 @@ export class Tasks extends Component {
   render() {
     let taskSelection: ITask[];
     let isPast = false;
-    let showAllTasks = false;
+    let date: string;
 
-    if (
-      "month" in this.state.dateInfo &&
-      "year" in this.state.dateInfo &&
-      "day" in this.state.dateInfo
-    ) {
+    if (!this.state.showAll) {
       taskSelection = (this.state.tasks as ITask[]).filter((task) => {
         const taskDate = new Date(task.dateOfExecution);
 
@@ -150,9 +146,13 @@ export class Tasks extends Component {
             999
           ).getTime() >
         0;
+
+      date = `${addZero(this.state.dateInfo.day)}.${addZero(
+        this.state.dateInfo.month + 1
+      )}.${this.state.dateInfo.year}`;
     } else {
       taskSelection = this.state.tasks;
-      showAllTasks = true;
+      date = `All tasks!`;
     }
 
     if (this.state.completed) {
@@ -165,12 +165,12 @@ export class Tasks extends Component {
       .map((task, i, array) => {
         let entry = "";
 
-        const date = new Date(task.dateOfExecution);
+        const taskdate = new Date(task.dateOfExecution);
 
-        const dateString = `${addZero(date.getDate())}.${addZero(
-          date.getMonth() + 1
-        )}.${date.getFullYear()} ${addZero(date.getHours())}:${addZero(
-          date.getMinutes()
+        const dateString = `${addZero(taskdate.getDate())}.${addZero(
+          taskdate.getMonth() + 1
+        )}.${taskdate.getFullYear()} ${addZero(taskdate.getHours())}:${addZero(
+          taskdate.getMinutes()
         )}`;
 
         entry = `<li id=${task.id} class="tasks__task task" data-id='${
@@ -195,33 +195,32 @@ export class Tasks extends Component {
       })
       .join("")}`;
 
-    return `
-    ${tasksExist ? "" : `<div class='no-tasks' >No Tasks!</div>`}
-    ${
-      tasksExist && showAllTasks
-        ? "<div class='all-tasks' >These are all your tasks!</div>"
-        : ""
-    }
-    ${
-      !isPast || tasksExist
-        ? `<div class='tasks _container'>        
-       <form class='tasks__form-search form-search-tasks'>
+    return `          
+    <div class='tasks _container'> 
+      <div class="tasks-date" >Date: ${date}</div>       
+       ${
+         tasksExist
+           ? `<form class='tasks__form-search form-search-tasks'>
         <input class='form-search-tasks__inpit _input' required/>
         <button class="form-search-tasks__button _button" type="submit">Find the task</button>
         <p class='form-search-tasks__message'>No records were found for your query!</p>
-      </form>     
-      <div class="tasks__checkbox checkbox-completed">
-        <a class="checkbox-completed__link" href='/tasks?year=${
-          this.state.dateInfo.year
-        }&month=${this.state.dateInfo.month}&day=${
-            this.state.dateInfo.day
-          }&completed=${
-            this.state.completed ? "0" : "1"
-          }'><label class="checkbox-completed__container">Show completed
+      </form>`
+           : ""
+       }     
+      <div class="tasks__checkbox checkbox-completed" >
+        <a class="checkbox-completed__link" href='/tasks?${
+          this.state.showAll
+            ? `all=1&completed=${this.state.completed ? "0" : "1"}`
+            : `year=${this.state.dateInfo.year}&month=${
+                this.state.dateInfo.month
+              }&day=${this.state.dateInfo.day}&completed=${
+                this.state.completed ? "0" : "1"
+              }`
+        }'><label class="checkbox-completed__container">Show completed
           <input type="checkbox" ${this.state.completed ? "checked" : ""}>
           <span class="checkmark"></span>
         </label></a>        
-      </div>    
+      </div>               
       <ol class="tasks-container">
         <li class="tasks__task task task-header">
           <div class="task__text">Task description</div>
@@ -233,13 +232,11 @@ export class Tasks extends Component {
       ${listTasks}
       </ol>
       ${
-        isPast || showAllTasks
+        isPast || this.state.showAll
           ? ""
           : "<button class='tasks__button-create-task _button' >Create a task</button>"
       }     
-    </div>`
-        : ``
-    }
+    </div>
     <div class="modals" ></div>    
     `;
   }

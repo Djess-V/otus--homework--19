@@ -1,20 +1,14 @@
 import _ from "lodash";
 import { IDataToCreateTheDate, ITask, getNewTask } from "./Task";
-import { IValue } from "../service/constants";
+// import { IValue } from "../service/constants";
 
 export class LocalStorage {
   dbName = "";
 
   tasks: ITask[] = [];
 
-  static #instance: null | LocalStorage = null;
-
   constructor(dbName: string) {
-    if (LocalStorage.#instance) {
-      return LocalStorage.#instance;
-    }
     this.dbName = dbName;
-    LocalStorage.#instance = this;
   }
 
   createStorage = async (): Promise<ITask[]> => {
@@ -43,7 +37,7 @@ export class LocalStorage {
     return this.tasks;
   };
 
-  search = async (text: string): Promise<ITask[]> => {
+  /* search = async (text: string): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     this.tasks = this.tasks.filter((task) =>
@@ -51,7 +45,7 @@ export class LocalStorage {
     );
 
     return this.tasks;
-  };
+  }; */
 
   createTask = async (task: ITask): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
@@ -99,7 +93,7 @@ export class LocalStorage {
     return this.tasks;
   };
 
-  sortBy = async (param1: string, param2: string): Promise<ITask[]> => {
+  /* sortBy = async (param1: string, param2: string): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
     if (param1 !== "tags") {
@@ -131,7 +125,7 @@ export class LocalStorage {
     }
 
     return this.tasks;
-  };
+  }; */
 
   private async saveInStorage(tasks: ITask[]): Promise<void> {
     localStorage.setItem(this.dbName, JSON.stringify(tasks));

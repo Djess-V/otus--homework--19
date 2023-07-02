@@ -1,3 +1,4 @@
+import FuzzySearch from "fuzzy-search";
 import Component from "../basic/Component";
 import { addZero } from "../../service/functions";
 import { IDataToCreateTheDate, ITask, getNewTask } from "../../api/Task";

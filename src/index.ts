@@ -26,9 +26,6 @@ new App(element);
 let homeLink = "/";
 
 if (PRODUCTION) {
-  element.querySelectorAll("a").forEach((link) => {
-    link.href = PREFIX + link.pathname + link.search;
-  });
   homeLink = PREFIX + homeLink;
 }
 
@@ -39,10 +36,7 @@ const about = element.querySelector(".about") as HTMLElement;
 const router = new Router();
 
 router.on(homeLink, {
-  onEnter: () => {
-    new Header(header, { month, year, day });
-    new Start(main);
-  },
+  onEnter: handleEnterForHome,
 });
 router.on(/\/calendar(.+)?/, {
   onEnter: handleEnterForCalendar(),
@@ -59,6 +53,17 @@ router.on(/\/about/, {
     about.innerHTML = "";
   },
 });
+
+function handleEnterForHome() {
+  new Header(header, { month, year, day });
+  new Start(main);
+
+  if (PRODUCTION) {
+    main.querySelectorAll("a").forEach((link) => {
+      link.href = PREFIX + link.pathname + link.search;
+    });
+  }
+}
 
 function handleEnterForCalendar() {
   return (...args: IArgs[]) => {

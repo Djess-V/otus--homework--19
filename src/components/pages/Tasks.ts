@@ -7,6 +7,10 @@ import { ModalUpdateTask } from "../modals/ModalUpdateTask";
 import { store } from "../../store/store";
 import { addTask, deleteTask, updateTask } from "../../slices/sliceTask";
 
+interface ISearchFormElements extends HTMLFormControlsCollection {
+  text: HTMLInputElement;
+}
+
 export class Tasks extends Component {
   createTask = async (
     text: string,
@@ -40,23 +44,31 @@ export class Tasks extends Component {
   };
 
   handleFormSubmit = (e: Event) => {
-    // e.preventDefault();
-    // const inputSearch = this.el.querySelector(
-    //   ".form-search__inpit"
-    // ) as HTMLInputElement;
-    // tasks = await storage.search(inputSearch.value.toLowerCase().trim());
-    // if (tasks.length === 0) {
-    //   const message = element.querySelector(
-    //     ".form-search__message"
-    //   ) as HTMLElement;
-    //   message.style.opacity = "1";
-    //   setTimeout(() => {
-    //     message.style.opacity = "0";
-    //   }, 3000);
-    // } else {
-    //   drawTasks(element, tasks);
-    // }
-    // inputSearch.value = "";
+    e.preventDefault();
+
+    const elements = (e.target as HTMLFormElement)
+      .elements as ISearchFormElements;
+
+    const searcher = new FuzzySearch(this.state.tasks, ["text"], {
+      caseSensitive: true,
+    });
+
+    const result = searcher.search(elements.text.value);
+
+    if (result.length === 0) {
+      const message = this.el.querySelector(
+        ".form-search-tasks__message"
+      ) as HTMLElement;
+
+      message.style.opacity = "1";
+
+      setTimeout(() => {
+        message.style.opacity = "0";
+      }, 3000);
+    } else {
+      this.setState({ tasks: result });
+    }
+    elements.text.value = "";
   };
 
   handleClickCreateTask = () => {
@@ -202,8 +214,8 @@ export class Tasks extends Component {
        ${
          tasksExist
            ? `<form class='tasks__form-search form-search-tasks'>
-        <input class='form-search-tasks__inpit _input' required/>
-        <button class="form-search-tasks__button _button" type="submit">Find the task</button>
+        <input name="text" class='form-search-tasks__inpit _input' required/>
+        <button name="button" class="form-search-tasks__button _button" type="submit">Find the task</button>
         <p class='form-search-tasks__message'>No records were found for your query!</p>
       </form>`
            : ""

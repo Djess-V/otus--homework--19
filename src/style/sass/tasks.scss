@@ -55,6 +55,12 @@ hr {
   margin: 25px 0;
 }
 
+@media (max-width: 400px) {
+  .tasks-date {
+    font-size: 18px;
+  }
+}
+
 .task {
   display: flex;
   font-weight: 500;

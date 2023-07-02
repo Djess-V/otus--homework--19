@@ -49,3 +49,13 @@
 .nav-header__link_active:hover {
   color: #96fd81;
 }
+
+@media (max-width: 400px) {
+  .header-container__title {
+    font-size: 30px;
+  }
+  .nav-header__link {
+    padding: 10px 10px;
+    font-size: 0.8rem;
+  }
+}

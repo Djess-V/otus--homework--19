@@ -1,6 +1,6 @@
 import Component from "../basic/Component";
 
-interface IFormElements extends HTMLFormControlsCollection {
+interface ICreateFormElements extends HTMLFormControlsCollection {
   description: HTMLInputElement;
   hours: HTMLInputElement;
   minutes: HTMLInputElement;
@@ -23,7 +23,8 @@ export class ModalCreateTask extends Component {
   handleClickCreateTask = async (e: Event) => {
     e.preventDefault();
 
-    const elements = (e.target as HTMLFormElement).elements as IFormElements;
+    const elements = (e.target as HTMLFormElement)
+      .elements as ICreateFormElements;
 
     if (
       !/^$|^([а-яёА-ЯЁa-zA-Z0-9\s]+\s?)$|^([а-яёА-ЯЁa-zA-Z0-9\s]+,\s?)+/.test(

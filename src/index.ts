@@ -59,7 +59,7 @@ function handleEnterForHome() {
   new Start(main);
 
   if (PRODUCTION) {
-    main.querySelectorAll("a").forEach((link) => {
+    element.querySelectorAll("a").forEach((link) => {
       link.href = PREFIX + link.pathname + link.search;
     });
   }
@@ -86,7 +86,7 @@ function handleEnterForCalendar() {
     new Calendar(main, { now, dateInfo, completed, tasks });
 
     if (PRODUCTION) {
-      main.querySelectorAll("a").forEach((link) => {
+      element.querySelectorAll("a").forEach((link) => {
         link.href = PREFIX + link.pathname + link.search;
       });
     }
@@ -126,6 +126,12 @@ function handleEnterForTasks() {
       completed,
       showAll,
     });
+
+    if (PRODUCTION) {
+      element.querySelectorAll("a").forEach((link) => {
+        link.href = PREFIX + link.pathname + link.search;
+      });
+    }
   };
 }
 

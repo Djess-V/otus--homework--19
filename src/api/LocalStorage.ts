@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { IDataToCreateTheDate, ITask, getNewTask } from "./Task";
-import { sort } from "../service/functions";
+import { addWithSort, sort } from "../service/functions";
 // import { IValue } from "../service/constants";
 
 export class LocalStorage {
@@ -31,10 +31,6 @@ export class LocalStorage {
       this.saveInStorage(this.tasks);
     }
 
-    const items = sort(this.tasks);
-
-    this.saveInStorage(items);
-
     return this.tasks;
   };
 
@@ -56,7 +52,7 @@ export class LocalStorage {
   createTask = async (task: ITask): Promise<ITask[]> => {
     this.tasks = await this.readFromStorage();
 
-    this.tasks.push(task);
+    this.tasks = addWithSort(task, this.tasks);
 
     await this.saveInStorage(this.tasks);
 

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ITask } from "../api/Task";
+import { addWithSort } from "../service/functions";
 
 const initialState: ITask[] = [];
 
@@ -13,7 +14,7 @@ const taskSlice = createSlice({
     },
 
     addTask: (state, action: PayloadAction<ITask>) => {
-      state.push(action.payload);
+      state = addWithSort(action.payload, state);
       return state;
     },
 

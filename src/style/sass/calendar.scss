@@ -29,6 +29,43 @@
   margin: 25px 0;
 }
 
+.legend {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 50px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  & p {
+    display: flex;
+    align-items: center;
+    font-size: 2.5vw;
+  }
+
+  & span {
+    display: block;
+    width: 33px;
+    height: 33px;
+    border-radius: 50%;
+  }
+
+  & .today {
+    background-color: #9fcee7;
+  }
+
+  & .task-exist {
+    border: 2px dotted green;
+  }
+}
+
+@media (min-width: 1000px) {
+  .legend p {
+    font-size: 25px;
+  }
+}
+
 .header-calendar {
   display: flex;
   justify-content: space-evenly;
@@ -113,7 +150,8 @@ td[data-today="today"] a {
 }
 
 @media (max-width: 560px) {
-  .calendar {
+  .calendar,
+  .legend p {
     font-size: 5vmin;
   }
   .table-calendar {

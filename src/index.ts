@@ -1,4 +1,5 @@
 import { Router, IArgs } from "@djess-v/router";
+import FuzzySearch from "fuzzy-search";
 import { App } from "./components/App";
 import "./style/style.scss";
 import { Start } from "./components/pages/Start";
@@ -82,6 +83,7 @@ function handleEnterForCalendar() {
     if (completed) {
       tasks = tasks.filter((task) => task.status);
     }
+
     new Header(header, { link: "calendar", month, year, day });
     new Calendar(main, { now, dateInfo, completed, tasks });
 
@@ -97,11 +99,16 @@ function handleEnterForTasks() {
   return (...args: IArgs[]) => {
     let dateInfo: IDateInfo;
     let showAll = false;
+    let search = "";
     let completed = false;
-    const { tasks } = <RootState>store.getState();
+    let { tasks } = <RootState>store.getState();
 
     if ("all" in args[0].state) {
       showAll = Boolean(Number(args[0].state.all));
+    }
+
+    if ("search" in args[0].state) {
+      ({ search } = args[0].state);
     }
 
     if (
@@ -117,7 +124,30 @@ function handleEnterForTasks() {
     if ("completed" in args[0].state) {
       completed = Boolean(Number(args[0].state.completed));
     }
-    new Header(header, { link: "tasks", month, year, day });
+
+    if (!showAll) {
+      tasks = tasks.filter((task) => {
+        const taskDate = new Date(task.dateOfExecution);
+
+        return (
+          dateInfo.year === taskDate.getFullYear() &&
+          dateInfo.month === taskDate.getMonth() &&
+          dateInfo.day === taskDate.getDate()
+        );
+      });
+    }
+
+    if (completed) {
+      tasks = tasks.filter((task) => task.status);
+    }
+
+    if (search) {
+      const searcher = new FuzzySearch(tasks, ["text"]);
+
+      tasks = searcher.search(search);
+    }
+
+    new Header(header, { link: "tasks", showAll, month, year, day });
     new Tasks(main, {
       tasks,
       storage,
@@ -125,6 +155,8 @@ function handleEnterForTasks() {
       now,
       completed,
       showAll,
+      reloadUrl,
+      search,
     });
 
     if (PRODUCTION) {
@@ -141,5 +173,16 @@ async function loadInitialDataIntoStore() {
   const defaultTask = await storage.fetchAll();
 
   store.dispatch(unloadTasksFromLS(defaultTask));
-  router.go(window.location.href);
+  await reloadUrl();
+}
+
+function reloadUrl(search = "") {
+  if (search && window.location.href.includes(search)) {
+    return;
+  }
+  window.history.pushState(
+    {},
+    `${window.location.href}${search}`,
+    `${window.location.href}${search}`
+  );
 }

@@ -1,4 +1,3 @@
-import FuzzySearch from "fuzzy-search";
 import Component from "../basic/Component";
 import { addZero } from "../../service/functions";
 import { IDataToCreateTheDate, ITask, getNewTask } from "../../api/Task";
@@ -12,6 +11,14 @@ interface ISearchFormElements extends HTMLFormControlsCollection {
 }
 
 export class Tasks extends Component {
+  constructor(...props: [el: HTMLElement, initialState?: Record<string, any>]) {
+    super(...props);
+
+    if (this.state.search && !this.state.tasks.length) {
+      this.hideSearchMessage();
+    }
+  }
+
   createTask = async (
     text: string,
     tags: string,
@@ -32,7 +39,7 @@ export class Tasks extends Component {
 
     store.dispatch(addTask(task));
 
-    this.setState({ tasks: store.getState().tasks });
+    await this.state.reloadUrl();
   };
 
   updateText = async (id: string, text: string) => {
@@ -40,7 +47,7 @@ export class Tasks extends Component {
 
     store.dispatch(updateTask({ id, data: text }));
 
-    this.setState({ tasks: store.getState().tasks });
+    this.state.reloadUrl();
   };
 
   handleFormSubmit = (e: Event) => {
@@ -49,26 +56,7 @@ export class Tasks extends Component {
     const elements = (e.target as HTMLFormElement)
       .elements as ISearchFormElements;
 
-    const searcher = new FuzzySearch(this.state.tasks, ["text"], {
-      caseSensitive: true,
-    });
-
-    const result = searcher.search(elements.text.value);
-
-    if (result.length === 0) {
-      const message = this.el.querySelector(
-        ".form-search-tasks__message"
-      ) as HTMLElement;
-
-      message.style.opacity = "1";
-
-      setTimeout(() => {
-        message.style.opacity = "0";
-      }, 3000);
-    } else {
-      this.setState({ tasks: result });
-    }
-    elements.text.value = "";
+    this.state.reloadUrl(`&search=${elements.text.value}`);
   };
 
   handleClickCreateTask = () => {
@@ -85,7 +73,7 @@ export class Tasks extends Component {
 
       store.dispatch(deleteTask(id));
 
-      this.setState({ tasks: store.getState().tasks });
+      this.state.reloadUrl();
     }
   };
 
@@ -119,8 +107,20 @@ export class Tasks extends Component {
         updateTask({ id, data: (e.target as HTMLInputElement).checked })
       );
 
-      this.setState({ tasks: store.getState().tasks });
+      this.state.reloadUrl();
     }
+  };
+
+  hideSearchMessage = () => {
+    const message = this.el.querySelector(
+      ".form-search-tasks__message"
+    ) as HTMLElement;
+
+    setTimeout(() => {
+      if (message) {
+        message.style.opacity = "0";
+      }
+    }, 3000);
   };
 
   events = {
@@ -132,21 +132,10 @@ export class Tasks extends Component {
   };
 
   render() {
-    let taskSelection: ITask[];
     let isPast = false;
     let date: string;
 
     if (!this.state.showAll) {
-      taskSelection = (this.state.tasks as ITask[]).filter((task) => {
-        const taskDate = new Date(task.dateOfExecution);
-
-        return (
-          this.state.dateInfo.year === taskDate.getFullYear() &&
-          this.state.dateInfo.month === taskDate.getMonth() &&
-          this.state.dateInfo.day === taskDate.getDate()
-        );
-      });
-
       isPast =
         (this.state.now as Date).getTime() -
           new Date(
@@ -164,17 +153,12 @@ export class Tasks extends Component {
         this.state.dateInfo.month + 1
       )}.${this.state.dateInfo.year}`;
     } else {
-      taskSelection = this.state.tasks;
       date = `All tasks!`;
     }
 
-    if (this.state.completed) {
-      taskSelection = taskSelection.filter((task) => task.status);
-    }
+    const tasksExist = !!this.state.tasks.length;
 
-    const tasksExist = !!taskSelection.length;
-
-    const listTasks = `${taskSelection
+    const listTasks = `${(this.state.tasks as ITask[])
       .map((task, i, array) => {
         let entry = "";
 
@@ -216,19 +200,28 @@ export class Tasks extends Component {
            ? `<form class='tasks__form-search form-search-tasks'>
         <input name="text" class='form-search-tasks__inpit _input' required/>
         <button name="button" class="form-search-tasks__button _button" type="submit">Find the task</button>
-        <p class='form-search-tasks__message'>No records were found for your query!</p>
+        ${
+          this.state.search &&
+          `<p class='form-search-tasks__message'>Search: &laquo;${
+            this.state.search
+          }&raquo;.     Found: ${this.state.tasks.length} task${
+            this.state.tasks.length === 1 ? "" : "s"
+          }.</p>`
+        }
       </form>`
            : ""
        }     
       <div class="tasks__checkbox checkbox-completed" >
         <a class="checkbox-completed__link" href='/tasks?${
           this.state.showAll
-            ? `all=1&completed=${this.state.completed ? "0" : "1"}`
+            ? `all=1&completed=${this.state.completed ? "0" : "1"}${
+                this.state.search ? `&search=${this.state.search}` : ""
+              }`
             : `year=${this.state.dateInfo.year}&month=${
                 this.state.dateInfo.month
               }&day=${this.state.dateInfo.day}&completed=${
                 this.state.completed ? "0" : "1"
-              }`
+              }${this.state.search ? `&search=${this.state.search}` : ""}`
         }'><label class="checkbox-completed__container">Show completed
           <input type="checkbox" ${this.state.completed ? "checked" : ""}>
           <span class="checkmark"></span>

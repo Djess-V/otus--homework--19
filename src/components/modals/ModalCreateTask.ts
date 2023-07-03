@@ -16,8 +16,13 @@ export class ModalCreateTask extends Component {
       ".app__modal-wrapper"
     ) as HTMLElement;
 
-    modalBackdrop.remove();
-    modalWrapper.remove();
+    if (modalBackdrop) {
+      modalBackdrop.remove();
+    }
+
+    if (modalWrapper) {
+      modalWrapper.remove();
+    }
   };
 
   handleClickCreateTask = async (e: Event) => {
@@ -35,10 +40,14 @@ export class ModalCreateTask extends Component {
         ".body-modal__error-message"
       ) as HTMLElement;
 
-      errorMessage.style.display = "block";
+      if (errorMessage) {
+        errorMessage.style.display = "block";
+      }
 
       setTimeout(() => {
-        errorMessage.style.display = "";
+        if (errorMessage) {
+          errorMessage.style.display = "";
+        }
       }, 7000);
     } else {
       this.state.createTask(
@@ -47,12 +56,6 @@ export class ModalCreateTask extends Component {
         elements.hours.value,
         elements.minutes.value
       );
-
-      const buttonCancel = this.el.querySelector(
-        ".footer-content-modal__button-cancel"
-      ) as HTMLButtonElement;
-
-      buttonCancel.click();
     }
   };
 

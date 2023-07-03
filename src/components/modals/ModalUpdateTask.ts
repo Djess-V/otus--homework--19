@@ -9,8 +9,13 @@ export class ModalUpdateTask extends Component {
       ".app__modal-wrapper"
     ) as HTMLElement;
 
-    modalBackdrop.remove();
-    modalWrapper.remove();
+    if (modalBackdrop) {
+      modalBackdrop.remove();
+    }
+
+    if (modalWrapper) {
+      modalWrapper.remove();
+    }
   };
 
   handleClickUpdateTask = async () => {
@@ -23,21 +28,19 @@ export class ModalUpdateTask extends Component {
         ".body-modal__error-message"
       ) as HTMLElement;
 
-      errorMessage.style.display = "block";
+      if (errorMessage) {
+        errorMessage.style.display = "block";
+      }
 
       setTimeout(() => {
-        errorMessage.style.display = "";
+        if (errorMessage) {
+          errorMessage.style.display = "";
+        }
       }, 3000);
     } else {
       const newText = input.value.replace(/[<>]/gi, "");
 
       this.state.updateText(this.state.id, newText);
-
-      const buttonCancel = this.el.querySelector(
-        ".footer-content-modal__button-cancel"
-      ) as HTMLButtonElement;
-
-      buttonCancel.click();
     }
   };
 

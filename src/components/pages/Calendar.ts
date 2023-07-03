@@ -181,8 +181,12 @@ export class Calendar extends Component {
           <label class="checkbox-completed__container">Show completed
           <input type="checkbox" ${this.state.completed ? "checked" : ""}>
           <span class="checkmark"></span>
-        </label></a>        
-      </div>      
+        </label></a>                
+      </div> 
+      <div class="legend" >
+        <p><span class="today"></span>&nbsp;- today</p>
+        <p><span class="task-exist"></span>&nbsp;- tasks exist</p>
+      </div>     
       <div class="calendar__header header-calendar">        
         <a class="header-calendar__arrow-left" href="/calendar?year=${
           this.state.dateInfo.month !== 0

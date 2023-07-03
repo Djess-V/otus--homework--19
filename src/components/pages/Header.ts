@@ -12,7 +12,9 @@ export class Header extends Component {
       this.state.month
     }&completed=0' >CALENDAR</a>
           <a class="nav-header__link ${
-            this.state.link === "tasks" ? "nav-header__link_active" : ""
+            this.state.link === "tasks" && this.state.showAll
+              ? "nav-header__link_active"
+              : ""
           }" href='/tasks?all=1&completed=0' >ALL TASKS</a>
           <a class="nav-header__link ${
             this.state.link === "about" ? "nav-header__link_active" : ""

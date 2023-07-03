@@ -57,6 +57,7 @@ module.exports = {
     "default-param-last": "off",
     "class-methods-use-this": "off",
     "prefer-destructuring": ["error", { object: true, array: false }],
+    "no-bitwise": ["error", { allow: ["~"] }],
   },
   settings: {
     "import/resolver": {

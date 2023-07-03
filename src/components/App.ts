@@ -5,7 +5,7 @@ export class App extends Component {
     return `
     <header class="header" ></header>
     <main class="main _container" ></main>
-    <section class="about" ></section>
+    <section class="modals" ></section>
   `;
   }
 }

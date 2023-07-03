@@ -1,3 +1,5 @@
+import { updateTask } from "../../slices/sliceTask";
+import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 export class ModalUpdateTask extends Component {
@@ -40,7 +42,11 @@ export class ModalUpdateTask extends Component {
     } else {
       const newText = input.value.replace(/[<>]/gi, "");
 
-      this.state.updateText(this.state.id, newText);
+      await this.state.storage.update(this.state.id, newText);
+
+      store.dispatch(updateTask({ id: this.state.id, data: newText }));
+
+      window.history.back();
     }
   };
 

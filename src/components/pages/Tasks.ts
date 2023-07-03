@@ -1,55 +1,15 @@
 import Component from "../basic/Component";
 import { addZero } from "../../service/functions";
-import { IDataToCreateTheDate, ITask, getNewTask } from "../../api/Task";
-import { ModalCreateTask } from "../modals/ModalCreateTask";
-import { ModalUpdateTask } from "../modals/ModalUpdateTask";
+import { ITask } from "../../api/Task";
 import { store } from "../../store/store";
-import { addTask, deleteTask, updateTask } from "../../slices/sliceTask";
+import { deleteTask, updateTask } from "../../slices/sliceTask";
+import { changeId } from "../../slices/sliceIdCurrentTaskToUpdate";
 
 interface ISearchFormElements extends HTMLFormControlsCollection {
   text: HTMLInputElement;
 }
 
 export class Tasks extends Component {
-  constructor(...props: [el: HTMLElement, initialState?: Record<string, any>]) {
-    super(...props);
-
-    if (this.state.search && !this.state.tasks.length) {
-      this.hideSearchMessage();
-    }
-  }
-
-  createTask = async (
-    text: string,
-    tags: string,
-    hours: string,
-    minutes: string
-  ) => {
-    const dataToCreateTheDate: IDataToCreateTheDate = {
-      year: Number(this.state.dateInfo.year),
-      month: Number(this.state.dateInfo.month),
-      day: Number(this.state.dateInfo.day),
-      hours: Number(hours),
-      minutes: Number(minutes),
-    };
-
-    const task = getNewTask(text, tags, dataToCreateTheDate);
-
-    await this.state.storage.createTask(task, dataToCreateTheDate);
-
-    store.dispatch(addTask(task));
-
-    await this.state.reloadUrl();
-  };
-
-  updateText = async (id: string, text: string) => {
-    await this.state.storage.update(id, text);
-
-    store.dispatch(updateTask({ id, data: text }));
-
-    this.state.reloadUrl();
-  };
-
   handleFormSubmit = (e: Event) => {
     e.preventDefault();
 
@@ -60,9 +20,7 @@ export class Tasks extends Component {
   };
 
   handleClickCreateTask = () => {
-    const modals = this.el.querySelector(".modals") as HTMLElement;
-
-    new ModalCreateTask(modals, { createTask: this.createTask });
+    this.state.reloadUrl("", "/create");
   };
 
   handleClickDeleteTask = async (e: Event) => {
@@ -77,19 +35,13 @@ export class Tasks extends Component {
     }
   };
 
-  handleClickUpdateText = (e: Event) => {
+  handleClickUpdateText = async (e: Event) => {
     const { id } = (e.target as HTMLButtonElement).dataset;
 
     if (id) {
-      const divText = <HTMLDivElement>(
-        this.el.querySelector(`[data-taskText='${id}']`)
-      );
+      store.dispatch(changeId(id));
 
-      const text = <string>divText.textContent;
-
-      const modals = this.el.querySelector(".modals") as HTMLElement;
-
-      new ModalUpdateTask(modals, { id, text, updateText: this.updateText });
+      this.state.reloadUrl("", "/update", id);
     }
   };
 
@@ -106,21 +58,7 @@ export class Tasks extends Component {
       store.dispatch(
         updateTask({ id, data: (e.target as HTMLInputElement).checked })
       );
-
-      this.state.reloadUrl();
     }
-  };
-
-  hideSearchMessage = () => {
-    const message = this.el.querySelector(
-      ".form-search-tasks__message"
-    ) as HTMLElement;
-
-    setTimeout(() => {
-      if (message) {
-        message.style.opacity = "0";
-      }
-    }, 3000);
   };
 
   events = {
@@ -242,8 +180,7 @@ export class Tasks extends Component {
           ? ""
           : "<button class='tasks__button-create-task _button' >Create a task</button>"
       }     
-    </div>
-    <div class="modals" ></div>    
+    </div>  
     `;
   }
 }

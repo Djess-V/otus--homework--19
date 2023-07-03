@@ -1,3 +1,6 @@
+import { IDataToCreateTheDate, getNewTask } from "../../api/Task";
+import { addTask } from "../../slices/sliceTask";
+import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 interface ICreateFormElements extends HTMLFormControlsCollection {
@@ -50,12 +53,25 @@ export class ModalCreateTask extends Component {
         }
       }, 7000);
     } else {
-      this.state.createTask(
+      const dataToCreateTheDate: IDataToCreateTheDate = {
+        year: Number(this.state.dateInfo.year),
+        month: Number(this.state.dateInfo.month),
+        day: Number(this.state.dateInfo.day),
+        hours: Number(elements.hours.value),
+        minutes: Number(elements.minutes.value),
+      };
+
+      const task = getNewTask(
         elements.description.value,
         elements.tags.value,
-        elements.hours.value,
-        elements.minutes.value
+        dataToCreateTheDate
       );
+
+      await this.state.storage.createTask(task, dataToCreateTheDate);
+
+      store.dispatch(addTask(task));
+
+      window.history.back();
     }
   };
 

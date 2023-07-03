@@ -11,6 +11,9 @@ import { RootState, store } from "./store/store";
 import { LocalStorage } from "./api/LocalStorage";
 import { unloadTasksFromLS } from "./slices/sliceTask";
 import { Header } from "./components/pages/Header";
+import { ModalCreateTask } from "./components/modals/ModalCreateTask";
+import { ModalUpdateTask } from "./components/modals/ModalUpdateTask";
+import { ITask } from "./api/Task";
 
 const storage = new LocalStorage("@djess-v/my-calendar");
 
@@ -32,7 +35,7 @@ if (PRODUCTION) {
 
 const header = element.querySelector(".header") as HTMLElement;
 const main = element.querySelector(".main") as HTMLElement;
-const about = element.querySelector(".about") as HTMLElement;
+const modals = element.querySelector(".modals") as HTMLElement;
 
 const router = new Router();
 
@@ -42,16 +45,105 @@ router.on(homeLink, {
 router.on(/\/calendar(.+)?/, {
   onEnter: handleEnterForCalendar(),
 });
-router.on(/\/tasks(.+)?/, {
-  onEnter: handleEnterForTasks(),
+router.on(/\/tasks\?(.+)?/, {
+  onEnter: (...args) => {
+    const params = handleQueryParamsForTasks(...args);
+
+    new Header(header, {
+      link: "tasks",
+      showAll: params.showAll,
+      month,
+      year,
+      day,
+    });
+
+    new Tasks(main, {
+      ...params,
+      storage,
+      now,
+      reloadUrl,
+    });
+
+    if (PRODUCTION) {
+      element.querySelectorAll("a").forEach((link) => {
+        link.href = PREFIX + link.pathname + link.search;
+      });
+    }
+  },
+});
+router.on(/\/tasks\/create\?(.+)?/, {
+  onEnter: (...args) => {
+    const params = handleQueryParamsForTasks(...args);
+
+    new Header(header, {
+      link: "tasks",
+      showAll: params.showAll,
+      month,
+      year,
+      day,
+    });
+
+    new Tasks(main, {
+      ...params,
+      storage,
+      now,
+      reloadUrl,
+    });
+
+    new ModalCreateTask(modals, { dateInfo: params.dateInfo, storage });
+
+    if (PRODUCTION) {
+      element.querySelectorAll("a").forEach((link) => {
+        link.href = PREFIX + link.pathname + link.search;
+      });
+    }
+  },
+  onLeave: (...args) => {
+    modals.innerHTML = "";
+  },
+});
+router.on(/\/tasks\/update\?(.+)?/, {
+  onEnter: (...args) => {
+    const params = handleQueryParamsForTasks(...args);
+
+    new Header(header, {
+      link: "tasks",
+      showAll: params.showAll,
+      month,
+      year,
+      day,
+    });
+
+    new Tasks(main, {
+      ...params,
+      storage,
+      now,
+      reloadUrl,
+    });
+
+    const task = params.tasks.find((item) => item.id === params.id);
+
+    if (task) {
+      new ModalUpdateTask(modals, { storage, id: task.id, text: task.text });
+    }
+
+    if (PRODUCTION) {
+      element.querySelectorAll("a").forEach((link) => {
+        link.href = PREFIX + link.pathname + link.search;
+      });
+    }
+  },
+  onLeave: (...args) => {
+    modals.innerHTML = "";
+  },
 });
 router.on(/\/about/, {
   onEnter: () => {
     new Header(header, { link: "about", month, year, day });
-    new About(about);
+    new About(modals);
   },
   onLeave: (...args) => {
-    about.innerHTML = "";
+    modals.innerHTML = "";
   },
 });
 
@@ -95,75 +187,69 @@ function handleEnterForCalendar() {
   };
 }
 
-function handleEnterForTasks() {
-  return (...args: IArgs[]) => {
-    let dateInfo: IDateInfo;
-    let showAll = false;
-    let search = "";
-    let completed = false;
-    let { tasks } = <RootState>store.getState();
+function handleQueryParamsForTasks(...args: IArgs[]) {
+  let dateInfo: IDateInfo;
+  let showAll = false;
+  let search = "";
+  let completed = false;
+  let id = "";
+  let { tasks } = <RootState>store.getState();
 
-    if ("all" in args[0].state) {
-      showAll = Boolean(Number(args[0].state.all));
-    }
+  if ("id" in args[0].state) {
+    ({ id } = args[0].state);
+  }
 
-    if ("search" in args[0].state) {
-      ({ search } = args[0].state);
-    }
+  if ("all" in args[0].state) {
+    showAll = Boolean(Number(args[0].state.all));
+  }
 
-    if (
-      "month" in args[0].state &&
-      "year" in args[0].state &&
-      "day" in args[0].state
-    ) {
-      dateInfo = getTheDate(now, args[0].state);
-    } else {
-      dateInfo = getTheDate(now);
-    }
+  if ("search" in args[0].state) {
+    ({ search } = args[0].state);
+  }
 
-    if ("completed" in args[0].state) {
-      completed = Boolean(Number(args[0].state.completed));
-    }
+  if (
+    "month" in args[0].state &&
+    "year" in args[0].state &&
+    "day" in args[0].state
+  ) {
+    dateInfo = getTheDate(now, args[0].state);
+  } else {
+    dateInfo = getTheDate(now);
+  }
 
-    if (!showAll) {
-      tasks = tasks.filter((task) => {
-        const taskDate = new Date(task.dateOfExecution);
+  if ("completed" in args[0].state) {
+    completed = Boolean(Number(args[0].state.completed));
+  }
 
-        return (
-          dateInfo.year === taskDate.getFullYear() &&
-          dateInfo.month === taskDate.getMonth() &&
-          dateInfo.day === taskDate.getDate()
-        );
-      });
-    }
+  if (!showAll) {
+    tasks = tasks.filter((task) => {
+      const taskDate = new Date(task.dateOfExecution);
 
-    if (completed) {
-      tasks = tasks.filter((task) => task.status);
-    }
-
-    if (search) {
-      const searcher = new FuzzySearch(tasks, ["text"]);
-
-      tasks = searcher.search(search);
-    }
-
-    new Header(header, { link: "tasks", showAll, month, year, day });
-    new Tasks(main, {
-      tasks,
-      storage,
-      dateInfo,
-      now,
-      completed,
-      showAll,
-      reloadUrl,
-      search,
+      return (
+        dateInfo.year === taskDate.getFullYear() &&
+        dateInfo.month === taskDate.getMonth() &&
+        dateInfo.day === taskDate.getDate()
+      );
     });
+  }
 
-    if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.pathname + link.search;
-      });
-    }
+  if (completed) {
+    tasks = tasks.filter((task) => task.status);
+  }
+
+  if (search) {
+    const searcher = new FuzzySearch(tasks, ["text"]);
+
+    tasks = searcher.search(search);
+  }
+
+  return {
+    tasks,
+    dateInfo,
+    completed,
+    showAll,
+    search,
+    id,
   };
 }
 
@@ -173,16 +259,16 @@ async function loadInitialDataIntoStore() {
   const defaultTask = await storage.fetchAll();
 
   store.dispatch(unloadTasksFromLS(defaultTask));
-  await reloadUrl();
+  reloadUrl();
 }
 
-function reloadUrl(search = "") {
+function reloadUrl(search = "", subString = "", id = "") {
   if (search && window.location.href.includes(search)) {
     return;
   }
-  window.history.pushState(
-    {},
-    `${window.location.href}${search}`,
-    `${window.location.href}${search}`
+  router.go(
+    `${window.location.origin}${window.location.pathname}${subString}${
+      window.location.search
+    }${search}${id ? `&id=${id}` : ""}`
   );
 }

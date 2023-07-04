@@ -13,7 +13,6 @@ import { unloadTasksFromLS } from "./slices/sliceTask";
 import { Header } from "./components/pages/Header";
 import { ModalCreateTask } from "./components/modals/ModalCreateTask";
 import { ModalUpdateTask } from "./components/modals/ModalUpdateTask";
-import { ITask } from "./api/Task";
 
 const storage = new LocalStorage("@djess-v/my-calendar");
 
@@ -43,7 +42,7 @@ router.on(homeLink, {
   onEnter: handleEnterForHome,
 });
 router.on(/\/calendar(.+)?/, {
-  onEnter: handleEnterForCalendar(),
+  onEnter: handleEnterForCalendar,
 });
 router.on(/\/tasks\?(.+)?/, {
   onEnter: (...args) => {
@@ -61,7 +60,7 @@ router.on(/\/tasks\?(.+)?/, {
       ...params,
       storage,
       now,
-      reloadUrl,
+      path: args[0].currentPath,
     });
 
     if (PRODUCTION) {
@@ -69,6 +68,9 @@ router.on(/\/tasks\?(.+)?/, {
         link.href = PREFIX + link.pathname + link.search;
       });
     }
+  },
+  onLeave: (...args) => {
+    modals.innerHTML = "";
   },
 });
 router.on(/\/tasks\/create\?(.+)?/, {
@@ -87,10 +89,14 @@ router.on(/\/tasks\/create\?(.+)?/, {
       ...params,
       storage,
       now,
-      reloadUrl,
+      path: args[0].currentPath,
     });
 
-    new ModalCreateTask(modals, { dateInfo: params.dateInfo, storage });
+    new ModalCreateTask(modals, {
+      dateInfo: params.dateInfo,
+      storage,
+      prevPath: args[0].previousPath,
+    });
 
     if (PRODUCTION) {
       element.querySelectorAll("a").forEach((link) => {
@@ -118,13 +124,18 @@ router.on(/\/tasks\/update\?(.+)?/, {
       ...params,
       storage,
       now,
-      reloadUrl,
+      path: args[0].currentPath,
     });
 
     const task = params.tasks.find((item) => item.id === params.id);
 
     if (task) {
-      new ModalUpdateTask(modals, { storage, id: task.id, text: task.text });
+      new ModalUpdateTask(modals, {
+        storage,
+        id: task.id,
+        text: task.text,
+        prevPath: args[0].previousPath,
+      });
     }
 
     if (PRODUCTION) {
@@ -138,9 +149,9 @@ router.on(/\/tasks\/update\?(.+)?/, {
   },
 });
 router.on(/\/about/, {
-  onEnter: () => {
+  onEnter: (...args) => {
     new Header(header, { link: "about", month, year, day });
-    new About(modals);
+    new About(modals, { prevPath: args[0].previousPath });
   },
   onLeave: (...args) => {
     modals.innerHTML = "";
@@ -158,33 +169,31 @@ function handleEnterForHome() {
   }
 }
 
-function handleEnterForCalendar() {
-  return (...args: IArgs[]) => {
-    let dateInfo: IDateInfo = getTheDate(now);
-    let completed = false;
-    let { tasks } = <RootState>store.getState();
+function handleEnterForCalendar(...args: IArgs[]) {
+  let dateInfo: IDateInfo = getTheDate(now);
+  let completed = false;
+  let { tasks } = <RootState>store.getState();
 
-    if ("month" in args[0].state && "year" in args[0].state) {
-      dateInfo = getTheDate(now, args[0].state);
-    }
+  if ("month" in args[0].state && "year" in args[0].state) {
+    dateInfo = getTheDate(now, args[0].state);
+  }
 
-    if ("completed" in args[0].state) {
-      completed = Boolean(Number(args[0].state.completed));
-    }
+  if ("completed" in args[0].state) {
+    completed = Boolean(Number(args[0].state.completed));
+  }
 
-    if (completed) {
-      tasks = tasks.filter((task) => task.status);
-    }
+  if (completed) {
+    tasks = tasks.filter((task) => task.status);
+  }
 
-    new Header(header, { link: "calendar", month, year, day });
-    new Calendar(main, { now, dateInfo, completed, tasks });
+  new Header(header, { link: "calendar", month, year, day });
+  new Calendar(main, { now, dateInfo, completed, tasks });
 
-    if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.pathname + link.search;
-      });
-    }
-  };
+  if (PRODUCTION) {
+    element.querySelectorAll("a").forEach((link) => {
+      link.href = PREFIX + link.pathname + link.search;
+    });
+  }
 }
 
 function handleQueryParamsForTasks(...args: IArgs[]) {
@@ -259,16 +268,5 @@ async function loadInitialDataIntoStore() {
   const defaultTask = await storage.fetchAll();
 
   store.dispatch(unloadTasksFromLS(defaultTask));
-  reloadUrl();
-}
-
-function reloadUrl(search = "", subString = "", id = "") {
-  if (search && window.location.href.includes(search)) {
-    return;
-  }
-  router.go(
-    `${window.location.origin}${window.location.pathname}${subString}${
-      window.location.search
-    }${search}${id ? `&id=${id}` : ""}`
-  );
+  router.go(`${window.location.href}`);
 }

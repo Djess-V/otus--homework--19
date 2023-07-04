@@ -71,7 +71,11 @@ export class ModalCreateTask extends Component {
 
       store.dispatch(addTask(task));
 
-      window.history.back();
+      const link = this.el.querySelector(
+        `.footer-content-modal__link`
+      ) as HTMLAnchorElement;
+
+      link.click();
     }
   };
 
@@ -111,7 +115,8 @@ export class ModalCreateTask extends Component {
                <div class="content-modal__footer footer-content-modal">
                  <button form="createForm" class="footer-content-modal__button-create _button" type="submit" >
                      Add
-                   </button>              
+                   </button>  
+                   <a class="footer-content-modal__link" href="${this.state.prevPath}"><a/>             
                    <button class="footer-content-modal__button-cancel _button">
                    Cancel
                  </button>            

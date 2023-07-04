@@ -3,16 +3,11 @@ import close from "../../assets/images/close.svg";
 import spongebob from "../../assets/images/spongebob.jpg";
 
 export class About extends Component {
-  handleClickClose = (e: Event) => {
-    window.history.back();
-  };
-
   handleClickGithub = (e: Event) => {
     window.open("https://github.com/Djess-V/otus--homework--19");
   };
 
   events = {
-    "click@.content-modal__header_close": this.handleClickClose,
     "click@.github": this.handleClickGithub,
   };
 
@@ -28,7 +23,9 @@ export class About extends Component {
           >
             <div class="content-modal__header">
               <h2 class="content-modal__header_title">About</h2>
-              <img class="content-modal__header_close" src=${close} alt="Close" width="25px" height="25px" />
+              <a class="content-modal__header_close" href="${this.state.prevPath}" >
+                <img src=${close} alt="Close" width="25px" height="25px" />
+              </a>              
             </div>
             <div class='content-modal__body body-modal body-modal-about'>
                 <img src=${spongebob} alt="SpongeBob" width="148px" height="180px" />

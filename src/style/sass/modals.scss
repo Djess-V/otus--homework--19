@@ -131,6 +131,7 @@
     padding: 10px;
     transition: transform 0.7s linear;
     cursor: pointer;
+    pointer-events: none;
   }
 
   & img:hover {

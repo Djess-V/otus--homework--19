@@ -3,7 +3,6 @@ import { addZero } from "../../service/functions";
 import { ITask } from "../../api/Task";
 import { store } from "../../store/store";
 import { deleteTask, updateTask } from "../../slices/sliceTask";
-import { changeId } from "../../slices/sliceIdCurrentTaskToUpdate";
 
 interface ISearchFormElements extends HTMLFormControlsCollection {
   text: HTMLInputElement;
@@ -16,11 +15,24 @@ export class Tasks extends Component {
     const elements = (e.target as HTMLFormElement)
       .elements as ISearchFormElements;
 
-    this.state.reloadUrl(`&search=${elements.text.value}`);
-  };
+    if (elements.text.value.includes("&")) {
+      elements.text.value = "";
+      elements.text.placeholder = "Do not enter - &. Everything will break!";
+      return;
+    }
 
-  handleClickCreateTask = () => {
-    this.state.reloadUrl("", "/create");
+    const link = this.el.querySelector(
+      ".form-search-tasks__link"
+    ) as HTMLAnchorElement;
+
+    if (link.href.includes(`&search=`)) {
+      link.href = link.href.replace(/&search=(.+)/i, "");
+      link.href += `&search=${elements.text.value}`;
+    } else {
+      link.href += `&search=${elements.text.value}`;
+    }
+
+    link.click();
   };
 
   handleClickDeleteTask = async (e: Event) => {
@@ -31,17 +43,9 @@ export class Tasks extends Component {
 
       store.dispatch(deleteTask(id));
 
-      this.state.reloadUrl();
-    }
-  };
+      const li = this.el.querySelector(`.task-${id}`) as HTMLElement;
 
-  handleClickUpdateText = async (e: Event) => {
-    const { id } = (e.target as HTMLButtonElement).dataset;
-
-    if (id) {
-      store.dispatch(changeId(id));
-
-      this.state.reloadUrl("", "/update", id);
+      li.remove();
     }
   };
 
@@ -63,9 +67,7 @@ export class Tasks extends Component {
 
   events = {
     "submit@.form-search-tasks": this.handleFormSubmit,
-    "click@.tasks__button-create-task": this.handleClickCreateTask,
     "click@.delete__button": this.handleClickDeleteTask,
-    "click@.update__button": this.handleClickUpdateText,
     "click@.status__input": this.handleClickStatusTask,
   };
 
@@ -108,18 +110,20 @@ export class Tasks extends Component {
           taskdate.getMinutes()
         )}`;
 
-        entry = `<li id=${task.id} class="tasks__task task" data-id='${
-          task.id
-        }'>
+        entry = `<li class="tasks__task task task-${task.id}"'>
             <div class="task__text text-task" title='Tags - ${task.tags.join(
               ", "
             )}' data-taskText='${task.id}'>${task.text}</div>
             <div class="task__options task__options_type_status status"><input class="status__input" type="checkbox" ${
               task.status ? "checked" : ""
             } data-id='${task.id}'/></div>
-            <div class="task__options task__options_type_update update"><button class="update__button _task-button" data-id='${
-              task.id
-            }'></button></div>
+            <div class="task__options task__options_type_update update">
+              <a href="${window.location.origin}${
+          window.location.pathname
+        }/update${window.location.search}&id=${task.id}">
+                <button class="update__button _task-button" data-id='${
+                  task.id
+                }'></button></a></div>
             <div class="task__options task__options_type_delete delete"><button class="delete__button _task-button" data-id='${
               task.id
             }'></button></div>
@@ -138,16 +142,17 @@ export class Tasks extends Component {
            ? `<form class='tasks__form-search form-search-tasks'>
         <input name="text" class='form-search-tasks__inpit _input' required/>
         <button name="button" class="form-search-tasks__button _button" type="submit">Find the task</button>
-        ${
-          this.state.search &&
-          `<p class='form-search-tasks__message'>Search: &laquo;${
-            this.state.search
-          }&raquo;.     Found: ${this.state.tasks.length} task${
-            this.state.tasks.length === 1 ? "" : "s"
-          }.</p>`
-        }
+        <a class="form-search-tasks__link" href="${this.state.path}"></a>        
       </form>`
            : ""
+       }
+       ${
+         this.state.search &&
+         `<p class='tasks__search-message'>Search: &laquo;${
+           this.state.search
+         }&raquo;.     Found: ${this.state.tasks.length} task${
+           this.state.tasks.length === 1 ? "" : "s"
+         }.</p>`
        }     
       <div class="tasks__checkbox checkbox-completed" >
         <a class="checkbox-completed__link" href='/tasks?${
@@ -178,7 +183,8 @@ export class Tasks extends Component {
       ${
         isPast || this.state.showAll
           ? ""
-          : "<button class='tasks__button-create-task _button' >Create a task</button>"
+          : `<a href="${window.location.origin}${window.location.pathname}/create${window.location.search}">
+          <button class='tasks__button-create-task _button' >Create a task</button></a>`
       }     
     </div>  
     `;

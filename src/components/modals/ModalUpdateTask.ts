@@ -46,7 +46,11 @@ export class ModalUpdateTask extends Component {
 
       store.dispatch(updateTask({ id: this.state.id, data: newText }));
 
-      window.history.back();
+      const link = this.el.querySelector(
+        `.footer-content-modal__link`
+      ) as HTMLAnchorElement;
+
+      link.click();
     }
   };
 
@@ -72,7 +76,8 @@ export class ModalUpdateTask extends Component {
             <div class="content-modal__footer footer-content-modal">
               <button class="footer-content-modal__button-update _button">
                 Update
-              </button>              
+              </button>
+              <a class="footer-content-modal__link" href="${this.state.prevPath}"><a/>              
               <button class="footer-content-modal__button-cancel _button">
                 Cancel
               </button>            

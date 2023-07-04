@@ -18,11 +18,11 @@ hr {
 
   &__inpit {
     margin-right: 1rem;
-  }
 
-  &__message {
-    margin-top: 10px;
-    color: rgb(182, 48, 48);
+    &::placeholder {
+      color: red;
+      font-size: 12px;
+    }
   }
 }
 
@@ -40,6 +40,12 @@ hr {
   .form-search-tasks__button {
     margin-top: 10px;
   }
+}
+
+.tasks__search-message {
+  text-align: center;
+  margin-top: 10px;
+  color: rgb(182, 48, 48);
 }
 
 .tasks__checkbox {
@@ -86,6 +92,10 @@ hr {
 
 .task__text {
   width: 40%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .text-task {
@@ -137,6 +147,7 @@ hr {
 }
 
 .update__button {
+  pointer-events: none;
   background: url("../assets/images/pencil.svg") no-repeat;
   background-size: contain;
 }
@@ -147,6 +158,7 @@ hr {
 }
 
 .tasks__button-create-task {
+  pointer-events: none;
   align-self: flex-start;
 }
 

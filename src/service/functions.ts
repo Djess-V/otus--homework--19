@@ -48,29 +48,6 @@ export function addZero(number: number): string {
   return String(number);
 }
 
-export function sort(arr: ITask[]) {
-  const newArr = [...arr];
-  const len = newArr.length;
-  let max;
-  let count;
-  do {
-    count = 0;
-    for (let i = 0; i < len - 1; i += 1) {
-      if (
-        new Date(newArr[i].dateOfExecution).getTime() >
-        new Date(newArr[i + 1].dateOfExecution).getTime()
-      ) {
-        count += 1;
-        max = newArr[i];
-        newArr[i] = newArr[i + 1];
-        newArr[i + 1] = max;
-      }
-    }
-  } while (count > 0);
-
-  return newArr;
-}
-
 export function addWithSort(task: ITask, arr: ITask[]): ITask[] {
   const newArr = [...arr];
   let i = 0;

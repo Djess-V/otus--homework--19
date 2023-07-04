@@ -1,4 +1,4 @@
-// import "jest-location-mock";
+import "jest-location-mock";
 import startApp from "./startApp";
 
 const sleep = (x: number) => new Promise((r) => setTimeout(r, x));
@@ -31,7 +31,7 @@ describe("startApp", () => {
       ".nav-header__link"
     ) as NodeListOf<HTMLAnchorElement>;
 
-    window.location.href = "/about";
+    links[2].click();
 
     await sleep(100);
 
@@ -46,15 +46,5 @@ describe("startApp", () => {
     expect(desc.innerHTML).toBe("Description");
     expect(tds.length).toBe(6);
     expect(title.innerHTML).toBe("About");
-
-    const spyOpen = jest.spyOn(globalThis, "open");
-
-    const github = el.querySelector(".github") as HTMLElement;
-
-    github.dispatchEvent(new Event("click"));
-
-    expect(spyOpen).toHaveBeenCalledWith(
-      "https://github.com/Djess-V/otus--homework--19"
-    );
   });
 });

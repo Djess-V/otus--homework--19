@@ -46,6 +46,16 @@ export class Tasks extends Component {
       const li = this.el.querySelector(`.task-${id}`) as HTMLElement;
 
       li.remove();
+
+      const ol = this.el.querySelector(`.tasks-container`) as HTMLElement;
+
+      const lis = ol.querySelectorAll(`li`) as NodeListOf<HTMLLIElement>;
+
+      if (lis.length === 1) {
+        const hr = ol.querySelectorAll(`hr`) as NodeListOf<HTMLElement>;
+
+        hr[1].remove();
+      }
     }
   };
 

@@ -62,12 +62,6 @@ router.on(/\/tasks\?(.+)?/, {
       now,
       path: args[0].currentPath,
     });
-
-    if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.pathname + link.search;
-      });
-    }
   },
   onLeave: (...args) => {
     modals.innerHTML = "";
@@ -97,12 +91,6 @@ router.on(/\/tasks\/create\?(.+)?/, {
       storage,
       prevPath: args[0].previousPath,
     });
-
-    if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.pathname + link.search;
-      });
-    }
   },
   onLeave: (...args) => {
     modals.innerHTML = "";
@@ -135,12 +123,6 @@ router.on(/\/tasks\/update\?(.+)?/, {
         id: task.id,
         text: task.text,
         prevPath: args[0].previousPath,
-      });
-    }
-
-    if (PRODUCTION) {
-      element.querySelectorAll("a").forEach((link) => {
-        link.href = PREFIX + link.pathname + link.search;
       });
     }
   },

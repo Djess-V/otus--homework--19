@@ -246,7 +246,7 @@ export default async function startApp(element: HTMLElement) {
 
   function addPrefix() {
     element.querySelectorAll("a").forEach((link) => {
-      link.href = PREFIX + link.pathname + link.search;
+      link.href = `/otus--homework--19/${link.pathname}${link.search}`;
     });
   }
 }

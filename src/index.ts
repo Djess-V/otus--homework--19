@@ -56,6 +56,8 @@ router.on(/\/tasks\?(.+)?/, {
       day,
     });
 
+    addPrefix();
+
     new Tasks(main, {
       ...params,
       storage,
@@ -78,6 +80,8 @@ router.on(/\/tasks\/create\?(.+)?/, {
       year,
       day,
     });
+
+    addPrefix();
 
     new Tasks(main, {
       ...params,
@@ -107,6 +111,8 @@ router.on(/\/tasks\/update\?(.+)?/, {
       year,
       day,
     });
+
+    addPrefix();
 
     new Tasks(main, {
       ...params,
@@ -142,13 +148,10 @@ router.on(/\/about/, {
 
 function handleEnterForHome() {
   new Header(header, { month, year, day });
-  new Start(main);
 
-  if (PRODUCTION) {
-    element.querySelectorAll("a").forEach((link) => {
-      link.href = PREFIX + link.pathname + link.search;
-    });
-  }
+  addPrefix();
+
+  new Start(main);
 }
 
 function handleEnterForCalendar(...args: IArgs[]) {
@@ -171,11 +174,7 @@ function handleEnterForCalendar(...args: IArgs[]) {
   new Header(header, { link: "calendar", month, year, day });
   new Calendar(main, { now, dateInfo, completed, tasks });
 
-  if (PRODUCTION) {
-    element.querySelectorAll("a").forEach((link) => {
-      link.href = PREFIX + link.pathname + link.search;
-    });
-  }
+  addPrefix();
 }
 
 function handleQueryParamsForTasks(...args: IArgs[]) {
@@ -251,4 +250,12 @@ async function loadInitialDataIntoStore() {
 
   store.dispatch(unloadTasksFromLS(defaultTask));
   router.go(`${window.location.href}`);
+}
+
+function addPrefix() {
+  if (PRODUCTION) {
+    element.querySelectorAll("a").forEach((link) => {
+      link.href = PREFIX + link.pathname + link.search;
+    });
+  }
 }

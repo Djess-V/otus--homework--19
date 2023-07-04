@@ -245,10 +245,10 @@ export default async function startApp(element: HTMLElement) {
   }
 
   function addPrefix() {
-    //  if (PRODUCTION) {
-    //    element.querySelectorAll("a").forEach((link) => {
-    //      link.href = PREFIX + link.pathname + link.search;
-    //    });
-    //  }
+    if (PRODUCTION) {
+      element.querySelectorAll("a").forEach((link) => {
+        link.href = PREFIX + link.pathname + link.search;
+      });
+    }
   }
 }

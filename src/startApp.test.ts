@@ -13,6 +13,8 @@ describe("startApp", () => {
   it("check render", async () => {
     await startApp(el);
 
+    await sleep(100);
+
     const header = el.querySelector(".header") as HTMLElement;
     const main = el.querySelector(".main") as HTMLElement;
     const modals = el.querySelector(".modals") as HTMLElement;
@@ -25,13 +27,11 @@ describe("startApp", () => {
   it("check About", async () => {
     await startApp(el);
 
-    const navHeader = el.querySelector(".nav-header") as HTMLElement;
+    await sleep(100);
 
-    const links = navHeader.querySelectorAll(
-      ".nav-header__link"
-    ) as NodeListOf<HTMLAnchorElement>;
+    window.location.assign("/about");
 
-    links[2].click();
+    window.dispatchEvent(new Event("popstate"));
 
     await sleep(100);
 
@@ -46,5 +46,45 @@ describe("startApp", () => {
     expect(desc.innerHTML).toBe("Description");
     expect(tds.length).toBe(6);
     expect(title.innerHTML).toBe("About");
+
+    window.open = jest.fn();
+
+    const github = el.querySelector(".github") as HTMLSpanElement;
+
+    github.dispatchEvent(new Event("click"));
+
+    expect(window.open).toHaveBeenCalled();
+  });
+
+  it("check Calendar", async () => {
+    await startApp(el);
+
+    await sleep(100);
+
+    window.location.assign("/calendar");
+
+    window.dispatchEvent(new Event("popstate"));
+
+    await sleep(100);
+
+    const tds = el.querySelectorAll("td") as NodeListOf<HTMLTableCellElement>;
+
+    expect(tds.length).toBe(42);
+  });
+
+  it("check Tasks", async () => {
+    await startApp(el);
+
+    await sleep(100);
+
+    window.location.assign("https://github.com/tasks?all=1completed=0");
+
+    window.dispatchEvent(new Event("popstate"));
+
+    await sleep(100);
+
+    const checkbox = el.querySelector(".tasks__checkbox") as HTMLElement;
+
+    expect(checkbox).toBeTruthy();
   });
 });

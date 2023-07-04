@@ -172,7 +172,7 @@ export class Tasks extends Component {
        ${
          tasksExist
            ? `<form class='tasks__form-search form-search-tasks'>
-        <input name="text" class='form-search-tasks__inpit _input' required/>
+        <input name="text" class='form-search-tasks__input _input' required/>
         <button name="button" class="form-search-tasks__button _button" type="submit">Find the task</button>
         <a class="form-search-tasks__link" href="${this.state.path}"></a>        
       </form>`

@@ -4,20 +4,11 @@ import Component from "../basic/Component";
 
 export class ModalUpdateTask extends Component {
   handleClickCancel = () => {
-    const modalBackdrop = this.el.querySelector(
-      ".app__modal-backdrop"
-    ) as HTMLElement;
-    const modalWrapper = this.el.querySelector(
-      ".app__modal-wrapper"
-    ) as HTMLElement;
+    const link = this.el.querySelector(
+      `.footer-content-modal__link`
+    ) as HTMLAnchorElement;
 
-    if (modalBackdrop) {
-      modalBackdrop.remove();
-    }
-
-    if (modalWrapper) {
-      modalWrapper.remove();
-    }
+    link.click();
   };
 
   handleClickUpdateTask = async () => {
@@ -25,33 +16,17 @@ export class ModalUpdateTask extends Component {
       ".body-modal-update__input"
     ) as HTMLInputElement;
 
-    if (input.value === "") {
-      const errorMessage = this.el.querySelector(
-        ".body-modal__error-message"
-      ) as HTMLElement;
+    const newText = input.value.replace(/[<>]/gi, "");
 
-      if (errorMessage) {
-        errorMessage.style.display = "block";
-      }
+    await this.state.storage.update(this.state.id, newText);
 
-      setTimeout(() => {
-        if (errorMessage) {
-          errorMessage.style.display = "";
-        }
-      }, 3000);
-    } else {
-      const newText = input.value.replace(/[<>]/gi, "");
+    store.dispatch(updateTask({ id: this.state.id, data: newText }));
 
-      await this.state.storage.update(this.state.id, newText);
+    const link = this.el.querySelector(
+      `.footer-content-modal__link`
+    ) as HTMLAnchorElement;
 
-      store.dispatch(updateTask({ id: this.state.id, data: newText }));
-
-      const link = this.el.querySelector(
-        `.footer-content-modal__link`
-      ) as HTMLAnchorElement;
-
-      link.click();
-    }
+    link.click();
   };
 
   events = {
@@ -70,8 +45,7 @@ export class ModalUpdateTask extends Component {
             </div>
             <div class='content-modal__body body-modal body-modal-update'>               
               <label>Make changes</label>
-              <input class='body-modal-update__input _input' value="${this.state.text}"/>
-              <p class='body-modal__error-message'>An empty line is not allowed</p>
+              <input class='body-modal-update__input _input' value="${this.state.text}" required/>
             </div>
             <div class="content-modal__footer footer-content-modal">
               <button class="footer-content-modal__button-update _button">

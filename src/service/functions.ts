@@ -54,6 +54,10 @@ export function addWithSort(task: ITask, arr: ITask[]): ITask[] {
   let len = newArr.length;
   let h;
   let c = false;
+  if (len === 0) {
+    newArr.push(task);
+    return newArr;
+  }
   if (
     new Date(task.dateOfExecution).getTime() >
     new Date(newArr[len - 1].dateOfExecution).getTime()

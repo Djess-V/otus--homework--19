@@ -12,20 +12,11 @@ interface ICreateFormElements extends HTMLFormControlsCollection {
 
 export class ModalCreateTask extends Component {
   handleClickCancel = () => {
-    const modalBackdrop = this.el.querySelector(
-      ".app__modal-backdrop"
-    ) as HTMLElement;
-    const modalWrapper = this.el.querySelector(
-      ".app__modal-wrapper"
-    ) as HTMLElement;
+    const link = this.el.querySelector(
+      `.footer-content-modal__link`
+    ) as HTMLAnchorElement;
 
-    if (modalBackdrop) {
-      modalBackdrop.remove();
-    }
-
-    if (modalWrapper) {
-      modalWrapper.remove();
-    }
+    link.click();
   };
 
   handleClickCreateTask = async (e: Event) => {

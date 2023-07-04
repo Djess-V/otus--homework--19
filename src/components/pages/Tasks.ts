@@ -144,6 +144,28 @@ export class Tasks extends Component {
       })
       .join("")}`;
 
+    const generateURLForShowComplited = () => {
+      let href = this.state.path as string;
+      let subStr = "";
+      const matchArray = href.match(/&completed=(0|1)/);
+
+      if (!matchArray) {
+        return "";
+      }
+
+      if (matchArray[0] === `&completed=0`) {
+        subStr = `&completed=1`;
+      } else {
+        subStr = `&completed=0`;
+      }
+
+      href = href.replace(/&completed=(0|1)/, subStr);
+
+      return href;
+    };
+
+    const hrefForShowComplited = generateURLForShowComplited();
+
     return `          
     <div class='tasks _container'> 
       <div class="tasks-date" >Date: ${date}</div>       
@@ -165,17 +187,7 @@ export class Tasks extends Component {
          }.</p>`
        }     
       <div class="tasks__checkbox checkbox-completed" >
-        <a class="checkbox-completed__link" href='/tasks?${
-          this.state.showAll
-            ? `all=1&completed=${this.state.completed ? "0" : "1"}${
-                this.state.search ? `&search=${this.state.search}` : ""
-              }`
-            : `year=${this.state.dateInfo.year}&month=${
-                this.state.dateInfo.month
-              }&day=${this.state.dateInfo.day}&completed=${
-                this.state.completed ? "0" : "1"
-              }${this.state.search ? `&search=${this.state.search}` : ""}`
-        }'><label class="checkbox-completed__container">Show completed
+        <a class="checkbox-completed__link" href='${hrefForShowComplited}'><label class="checkbox-completed__container">Show completed
           <input type="checkbox" ${this.state.completed ? "checked" : ""}>
           <span class="checkmark"></span>
         </label></a>        

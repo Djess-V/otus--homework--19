@@ -9,7 +9,7 @@ type Mode = "none" | "production" | "development" | undefined;
 
 const NODE_ENV: Mode = process.env.NODE_ENV as Mode;
 
-const PREFIX = NODE_ENV === "production" ? "/otus--homework--19" : "";
+// const PREFIX = NODE_ENV === "production" ? "/otus--homework--19" : "";
 
 const config: webpack.Configuration = {
   entry: { index: resolve(__dirname, "./src/index.ts") },
@@ -56,10 +56,10 @@ const config: webpack.Configuration = {
       template: "index.html",
       filename: "404.html",
     }),
-    new webpack.DefinePlugin({
-      PRODUCTION: NODE_ENV === "production",
-      PREFIX: JSON.stringify(PREFIX),
-    }),
+    // new webpack.DefinePlugin({
+    //   PRODUCTION: NODE_ENV === "production",
+    //   PREFIX: JSON.stringify(PREFIX),
+    // }),
     new MiniCssExtractPlugin(),
   ],
   optimization: {

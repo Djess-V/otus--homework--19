@@ -66,6 +66,8 @@ export default async function startApp(element: HTMLElement) {
         eventBus,
       });
 
+      addPrefix();
+
       const main = element.querySelector(".main") as HTMLElement;
 
       new Calendar(main, {
@@ -75,8 +77,6 @@ export default async function startApp(element: HTMLElement) {
         tasks,
         eventBus,
       });
-
-      addPrefix();
     },
     onLeave: () => {
       eventBus.detach("initialLoad");

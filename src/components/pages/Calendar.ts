@@ -82,9 +82,9 @@ export class Calendar extends Component {
                 )}/1` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${this.state.dateInfo.year}&month=${
-              this.state.dateInfo.month
-            }&day=1" >1</a>
+              }' href="/otus--homework--19/tasks?year=${
+              this.state.dateInfo.year
+            }&month=${this.state.dateInfo.month}&day=1" >1</a>
               </td>
             `;
           }
@@ -131,7 +131,7 @@ export class Calendar extends Component {
                 )}/${String(searchDay)}` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}" >${searchDay}</a>
+              }' href="/otus--homework--19/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}" >${searchDay}</a>
               </td>
             `;
         });
@@ -168,7 +168,7 @@ export class Calendar extends Component {
                 )}/${String(otherSearchDay)}` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}" >${otherSearchDay}</a>
+              }' href="/otus--homework--19/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}" >${otherSearchDay}</a>
             </td>
           `;
         });
@@ -204,7 +204,7 @@ export class Calendar extends Component {
         <p><span class="task-exist"></span>&nbsp;- tasks exist</p>
       </div>     
       <div class="calendar__header header-calendar">        
-        <a class="header-calendar__arrow-left" href="/calendar?year=${
+        <a class="header-calendar__arrow-left" href="/otus--homework--19/calendar?year=${
           this.state.dateInfo.month !== 0
             ? this.state.dateInfo.year
             : this.state.dateInfo.year - 1
@@ -214,7 +214,7 @@ export class Calendar extends Component {
         <div class="header-calendar__title">
           ${months[this.state.dateInfo.month]} ${this.state.dateInfo.year}
         </div>
-        <a class="header-calendar__arrow-right" href="/calendar?year=${
+        <a class="header-calendar__arrow-right" href="/otus--homework--19/calendar?year=${
           this.state.dateInfo.month !== 11
             ? this.state.dateInfo.year
             : this.state.dateInfo.year + 1

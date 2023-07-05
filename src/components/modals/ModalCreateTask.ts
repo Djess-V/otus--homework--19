@@ -1,6 +1,3 @@
-import { IDataToCreateTheDate, getNewTask } from "../../api/Task";
-import { addTask } from "../../slices/sliceTask";
-import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 interface ICreateFormElements extends HTMLFormControlsCollection {
@@ -12,11 +9,7 @@ interface ICreateFormElements extends HTMLFormControlsCollection {
 
 export class ModalCreateTask extends Component {
   handleClickCancel = () => {
-    const link = this.el.querySelector(
-      `.footer-content-modal__link`
-    ) as HTMLAnchorElement;
-
-    link.click();
+    this.el.innerHTML = "";
   };
 
   handleClickCreateTask = async (e: Event) => {
@@ -37,36 +30,13 @@ export class ModalCreateTask extends Component {
       if (errorMessage) {
         errorMessage.style.display = "block";
       }
-
-      setTimeout(() => {
-        if (errorMessage) {
-          errorMessage.style.display = "";
-        }
-      }, 7000);
     } else {
-      const dataToCreateTheDate: IDataToCreateTheDate = {
-        year: Number(this.state.dateInfo.year),
-        month: Number(this.state.dateInfo.month),
-        day: Number(this.state.dateInfo.day),
-        hours: Number(elements.hours.value),
-        minutes: Number(elements.minutes.value),
-      };
-
-      const task = getNewTask(
+      this.state.createTask(
         elements.description.value,
         elements.tags.value,
-        dataToCreateTheDate
+        elements.hours.value,
+        elements.minutes.value
       );
-
-      await this.state.storage.createTask(task, dataToCreateTheDate);
-
-      store.dispatch(addTask(task));
-
-      const link = this.el.querySelector(
-        `.footer-content-modal__link`
-      ) as HTMLAnchorElement;
-
-      link.click();
     }
   };
 
@@ -106,8 +76,7 @@ export class ModalCreateTask extends Component {
                <div class="content-modal__footer footer-content-modal">
                  <button form="createForm" class="footer-content-modal__button-create _button" type="submit" >
                      Add
-                   </button>  
-                   <a class="footer-content-modal__link" href="${this.state.prevPath}"><a/>             
+                   </button>              
                    <button class="footer-content-modal__button-cancel _button">
                    Cancel
                  </button>            

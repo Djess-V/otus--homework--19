@@ -1,21 +1,24 @@
 import { Router, IArgs } from "@djess-v/router";
 import FuzzySearch from "fuzzy-search";
+import EventBus from "js-event-bus";
 import { App } from "./components/App";
 import "./style/style.scss";
 import { Start } from "./components/pages/Start";
 import { Calendar } from "./components/pages/Calendar";
 import { Tasks } from "./components/pages/Tasks";
-import { About } from "./components/modals/About";
+import { About } from "./components/pages/About";
 import { IDateInfo, getTheDate } from "./service/functions";
-import { RootState, store } from "./store/store";
+import { store } from "./store/store";
 import { LocalStorage } from "./api/LocalStorage";
 import { unloadTasksFromLS } from "./slices/sliceTask";
 import { Header } from "./components/pages/Header";
-import { ModalCreateTask } from "./components/modals/ModalCreateTask";
-import { ModalUpdateTask } from "./components/modals/ModalUpdateTask";
+import { ITask } from "./api/Task";
+import { clearSearch } from "./slices/sliceSearch";
 
 export default async function startApp(element: HTMLElement) {
   const storage = new LocalStorage("@djess-v/my-calendar");
+
+  const eventBus = new EventBus();
 
   await loadInitialDataIntoStore();
 
@@ -23,218 +26,132 @@ export default async function startApp(element: HTMLElement) {
 
   const { month, year, day } = getTheDate(now);
 
-  new App(element);
-
-  const header = element.querySelector(".header") as HTMLElement;
-  const main = element.querySelector(".main") as HTMLElement;
-  const modals = element.querySelector(".modals") as HTMLElement;
-
   const router = new Router();
 
   router.on(/\/$/, {
-    onEnter: handleEnterForHome,
+    onEnter: (...args: IArgs[]) => {
+      new App(element, { eventBus });
+
+      const header = element.querySelector(".header") as HTMLElement;
+
+      new Header(header, { month, year, day, eventBus });
+
+      const main = element.querySelector(".main") as HTMLElement;
+
+      new Start(main, { eventBus });
+
+      addPrefix();
+    },
+    onLeave: () => {
+      eventBus.detach("initialLoad");
+    },
   });
   router.on(/\/calendar(.+)?/, {
-    onEnter: handleEnterForCalendar,
-  });
-  router.on(/\/tasks\?(.+)?/, {
-    onEnter: (...args) => {
-      const params = handleQueryParamsForTasks(...args);
+    onEnter: (...args: IArgs[]) => {
+      let dateInfo: IDateInfo = getTheDate(now);
+      const { tasks, completed } = store.getState();
 
-      new Header(header, {
-        link: "tasks",
-        showAll: params.showAll,
-        month,
-        year,
-        day,
-      });
-
-      addPrefix();
-
-      new Tasks(main, {
-        ...params,
-        storage,
-        now,
-        path: args[0].currentPath,
-      });
-    },
-    onLeave: (...args) => {
-      modals.innerHTML = "";
-    },
-  });
-  router.on(/\/tasks\/create\?(.+)?/, {
-    onEnter: (...args) => {
-      const params = handleQueryParamsForTasks(...args);
-
-      new Header(header, {
-        link: "tasks",
-        showAll: params.showAll,
-        month,
-        year,
-        day,
-      });
-
-      addPrefix();
-
-      new Tasks(main, {
-        ...params,
-        storage,
-        now,
-        path: args[0].currentPath,
-      });
-
-      new ModalCreateTask(modals, {
-        dateInfo: params.dateInfo,
-        storage,
-        prevPath: args[0].previousPath,
-      });
-    },
-    onLeave: (...args) => {
-      modals.innerHTML = "";
-    },
-  });
-  router.on(/\/tasks\/update\?(.+)?/, {
-    onEnter: (...args) => {
-      const params = handleQueryParamsForTasks(...args);
-
-      new Header(header, {
-        link: "tasks",
-        showAll: params.showAll,
-        month,
-        year,
-        day,
-      });
-
-      addPrefix();
-
-      new Tasks(main, {
-        ...params,
-        storage,
-        now,
-        path: args[0].currentPath,
-      });
-
-      const task = params.tasks.find((item) => item.id === params.id);
-
-      if (task) {
-        new ModalUpdateTask(modals, {
-          storage,
-          id: task.id,
-          text: task.text,
-          prevPath: args[0].previousPath,
-        });
+      if ("month" in args[0].state && "year" in args[0].state) {
+        dateInfo = getTheDate(now, args[0].state);
       }
+
+      new App(element, { eventBus });
+
+      const header = element.querySelector(".header") as HTMLElement;
+
+      new Header(header, {
+        link: "calendar",
+        month,
+        year,
+        eventBus,
+      });
+
+      const main = element.querySelector(".main") as HTMLElement;
+
+      new Calendar(main, {
+        now,
+        dateInfo,
+        completed,
+        tasks,
+        eventBus,
+      });
+
+      addPrefix();
     },
-    onLeave: (...args) => {
-      modals.innerHTML = "";
+    onLeave: () => {
+      eventBus.detach("initialLoad");
+    },
+  });
+  router.on(/\/tasks(.+)?/, {
+    onEnter: (...args: IArgs[]) => {
+      let dateInfo: IDateInfo;
+      let showAll = false;
+
+      if ("all" in args[0].state) {
+        showAll = Boolean(Number(args[0].state.all));
+      }
+
+      if (
+        "month" in args[0].state &&
+        "year" in args[0].state &&
+        "day" in args[0].state
+      ) {
+        dateInfo = getTheDate(now, args[0].state);
+      } else {
+        dateInfo = getTheDate(now);
+      }
+
+      new App(element, { eventBus });
+
+      const header = element.querySelector(".header") as HTMLElement;
+
+      new Header(header, {
+        link: "tasks",
+        showAll,
+        month,
+        year,
+        eventBus,
+      });
+
+      addPrefix();
+
+      const main = element.querySelector(".main") as HTMLElement;
+
+      new Tasks(main, {
+        dateInfo,
+        storage,
+        now,
+        eventBus,
+        showAll,
+        searchTasks,
+      });
+    },
+    onLeave: () => {
+      eventBus.detach("initialLoad");
+      store.dispatch(clearSearch());
     },
   });
   router.on(/\/about/, {
-    onEnter: (...args) => {
-      new Header(header, { link: "about", month, year, day });
-      new About(modals, { prevPath: args[0].previousPath });
+    onEnter: (...args: IArgs[]) => {
+      new App(element, { eventBus });
+
+      const header = element.querySelector(".header") as HTMLElement;
+
+      new Header(header, {
+        link: "about",
+        month,
+        year,
+        eventBus,
+      });
+
+      const main = element.querySelector(".main") as HTMLElement;
+
+      new About(main, { eventBus });
     },
-    onLeave: (...args) => {
-      modals.innerHTML = "";
+    onLeave: () => {
+      eventBus.detach("initialLoad");
     },
   });
-
-  function handleEnterForHome() {
-    new Header(header, { month, year, day });
-
-    addPrefix();
-
-    new Start(main);
-  }
-
-  function handleEnterForCalendar(...args: IArgs[]) {
-    let dateInfo: IDateInfo = getTheDate(now);
-    let completed = false;
-    let { tasks } = <RootState>store.getState();
-
-    if ("month" in args[0].state && "year" in args[0].state) {
-      dateInfo = getTheDate(now, args[0].state);
-    }
-
-    if ("completed" in args[0].state) {
-      completed = Boolean(Number(args[0].state.completed));
-    }
-
-    if (completed) {
-      tasks = tasks.filter((task) => task.status);
-    }
-
-    new Header(header, { link: "calendar", month, year, day });
-    new Calendar(main, { now, dateInfo, completed, tasks });
-
-    addPrefix();
-  }
-
-  function handleQueryParamsForTasks(...args: IArgs[]) {
-    let dateInfo: IDateInfo;
-    let showAll = false;
-    let search = "";
-    let completed = false;
-    let id = "";
-    let { tasks } = <RootState>store.getState();
-
-    if ("id" in args[0].state) {
-      ({ id } = args[0].state);
-    }
-
-    if ("all" in args[0].state) {
-      showAll = Boolean(Number(args[0].state.all));
-    }
-
-    if ("search" in args[0].state) {
-      ({ search } = args[0].state);
-    }
-
-    if (
-      "month" in args[0].state &&
-      "year" in args[0].state &&
-      "day" in args[0].state
-    ) {
-      dateInfo = getTheDate(now, args[0].state);
-    } else {
-      dateInfo = getTheDate(now);
-    }
-
-    if ("completed" in args[0].state) {
-      completed = Boolean(Number(args[0].state.completed));
-    }
-
-    if (!showAll) {
-      tasks = tasks.filter((task) => {
-        const taskDate = new Date(task.dateOfExecution);
-
-        return (
-          dateInfo.year === taskDate.getFullYear() &&
-          dateInfo.month === taskDate.getMonth() &&
-          dateInfo.day === taskDate.getDate()
-        );
-      });
-    }
-
-    if (completed) {
-      tasks = tasks.filter((task) => task.status);
-    }
-
-    if (search) {
-      const searcher = new FuzzySearch(tasks, ["text"]);
-
-      tasks = searcher.search(search);
-    }
-
-    return {
-      tasks,
-      dateInfo,
-      completed,
-      showAll,
-      search,
-      id,
-    };
-  }
 
   async function loadInitialDataIntoStore() {
     await storage.createStorage();
@@ -242,6 +159,18 @@ export default async function startApp(element: HTMLElement) {
     const defaultTask = await storage.fetchAll();
 
     store.dispatch(unloadTasksFromLS(defaultTask));
+
+    eventBus.emit("initialLoad");
+  }
+
+  function searchTasks(str: string, items: ITask[]) {
+    let tasks = [...items];
+
+    const searcher = new FuzzySearch(tasks, ["text"]);
+
+    tasks = searcher.search(str);
+
+    return tasks;
   }
 
   function addPrefix() {

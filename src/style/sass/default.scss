@@ -82,27 +82,16 @@ body {
   }
 }
 
-.checkbox-completed__link {
-  text-decoration: none;
-  color: inherit;
-}
-
 .checkbox-completed__container {
   display: block;
   position: relative;
-  pointer-events: none;
   padding-left: 35px;
   margin-bottom: 12px;
   cursor: pointer;
   font-size: 18px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 
   & input {
     position: absolute;
-    pointer-events: none;
     opacity: 0;
     cursor: pointer;
     height: 0;
@@ -136,7 +125,6 @@ body {
 
 .checkmark {
   position: absolute;
-  pointer-events: none;
   top: 0;
   left: 0;
   height: 20px;
@@ -148,6 +136,5 @@ body {
     content: "";
     position: absolute;
     display: none;
-    pointer-events: none;
   }
 }

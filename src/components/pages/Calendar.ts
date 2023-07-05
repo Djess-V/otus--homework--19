@@ -1,8 +1,31 @@
 import Component from "../basic/Component";
 import { daysOfTheWeek, months } from "../../service/constants";
 import { ITask } from "../../api/Task";
+import { selectTask, store } from "../../store/store";
+import { toggle } from "../../slices/sliceCompleted";
 
 export class Calendar extends Component {
+  constructor(...props: [el: HTMLElement, initialState?: Record<string, any>]) {
+    super(...props);
+
+    this.state.eventBus.once("initialLoad", () => {
+      this.setState({ tasks: store.getState().tasks });
+    });
+  }
+
+  handleClickShowCompleted = async () => {
+    store.dispatch(toggle());
+
+    this.setState({
+      tasks: selectTask(store.getState()),
+      completed: store.getState().completed,
+    });
+  };
+
+  events = {
+    "click@.checkbox-completed__input": this.handleClickShowCompleted,
+  };
+
   render() {
     const taskSelection: Record<string, boolean> = {};
 
@@ -61,7 +84,7 @@ export class Calendar extends Component {
                   : ""
               }' href="/tasks?year=${this.state.dateInfo.year}&month=${
               this.state.dateInfo.month
-            }&day=1&completed=${this.state.completed ? "1" : "0"}" >1</a>
+            }&day=1" >1</a>
               </td>
             `;
           }
@@ -108,9 +131,7 @@ export class Calendar extends Component {
                 )}/${String(searchDay)}` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}&completed=${
-            this.state.completed ? "1" : "0"
-          }" >${searchDay}</a>
+              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}" >${searchDay}</a>
               </td>
             `;
         });
@@ -147,9 +168,7 @@ export class Calendar extends Component {
                 )}/${String(otherSearchDay)}` in taskSelection
                   ? "tasks-exists"
                   : ""
-              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}&completed=${
-            this.state.completed ? "1" : "0"
-          }" >${otherSearchDay}</a>
+              }' href="/tasks?year=${searchDate.getFullYear()}&month=${searchDate.getMonth()}&day=${searchDate.getDate()}" >${otherSearchDay}</a>
             </td>
           `;
         });
@@ -172,14 +191,11 @@ export class Calendar extends Component {
 
     return `
     <div class="calendar">
-      <div class="calendar__checkbox checkbox-completed">
-        <a class="checkbox-completed__link" href='/calendar?year=${
-          this.state.dateInfo.year
-        }&month=${this.state.dateInfo.month}&completed=${
-      this.state.completed ? "0" : "1"
-    }'>
+      <div class="calendar__checkbox checkbox-completed">        
           <label class="checkbox-completed__container">Show completed
-          <input type="checkbox" ${this.state.completed ? "checked" : ""}>
+          <input class="checkbox-completed__input" type="checkbox" ${
+            this.state.completed ? "checked" : ""
+          }>
           <span class="checkmark"></span>
         </label></a>                
       </div> 
@@ -194,7 +210,7 @@ export class Calendar extends Component {
             : this.state.dateInfo.year - 1
         }&month=${
       this.state.dateInfo.month !== 0 ? this.state.dateInfo.month - 1 : 11
-    }&completed=${this.state.completed ? "1" : "0"}" >&larr;</a>
+    }" >&larr;</a>
         <div class="header-calendar__title">
           ${months[this.state.dateInfo.month]} ${this.state.dateInfo.year}
         </div>
@@ -204,7 +220,7 @@ export class Calendar extends Component {
             : this.state.dateInfo.year + 1
         }&month=${
       this.state.dateInfo.month !== 11 ? this.state.dateInfo.month + 1 : 0
-    }&completed=${this.state.completed ? "1" : "0"}" >&rarr;</a>        
+    }" >&rarr;</a>        
       </div>
       <table class="calendar__table table-calendar">
         ${tHead}

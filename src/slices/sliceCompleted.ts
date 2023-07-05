@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = false;
 
-const onlyCompletedSlice = createSlice({
-  name: "onlyCompleted",
+const completedSlice = createSlice({
+  name: "completed",
   initialState,
   reducers: {
     toggle: (state) => {
@@ -12,6 +12,6 @@ const onlyCompletedSlice = createSlice({
   },
 });
 
-export const { toggle } = onlyCompletedSlice.actions;
+export const { toggle } = completedSlice.actions;
 
-export default onlyCompletedSlice.reducer;
+export default completedSlice.reducer;

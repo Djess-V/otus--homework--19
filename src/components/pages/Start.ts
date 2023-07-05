@@ -1,6 +1,14 @@
 import Component from "../basic/Component";
 
 export class Start extends Component {
+  constructor(...props: [el: HTMLElement, initialState?: Record<string, any>]) {
+    super(...props);
+
+    this.state.eventBus.once("initialLoad", () => {
+      this.setState({});
+    });
+  }
+
   render() {
     return `
       <div class="welcome">

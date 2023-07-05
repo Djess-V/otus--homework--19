@@ -1,14 +1,8 @@
-import { updateTask } from "../../slices/sliceTask";
-import { store } from "../../store/store";
 import Component from "../basic/Component";
 
 export class ModalUpdateTask extends Component {
   handleClickCancel = () => {
-    const link = this.el.querySelector(
-      `.footer-content-modal__link`
-    ) as HTMLAnchorElement;
-
-    link.click();
+    this.el.innerHTML = "";
   };
 
   handleClickUpdateTask = async () => {
@@ -18,15 +12,7 @@ export class ModalUpdateTask extends Component {
 
     const newText = input.value.replace(/[<>]/gi, "");
 
-    await this.state.storage.update(this.state.id, newText);
-
-    store.dispatch(updateTask({ id: this.state.id, data: newText }));
-
-    const link = this.el.querySelector(
-      `.footer-content-modal__link`
-    ) as HTMLAnchorElement;
-
-    link.click();
+    this.state.updateTask(this.state.id, newText);
   };
 
   events = {
@@ -50,8 +36,7 @@ export class ModalUpdateTask extends Component {
             <div class="content-modal__footer footer-content-modal">
               <button class="footer-content-modal__button-update _button">
                 Update
-              </button>
-              <a class="footer-content-modal__link" href="${this.state.prevPath}"><a/>              
+              </button>                            
               <button class="footer-content-modal__button-cancel _button">
                 Cancel
               </button>            

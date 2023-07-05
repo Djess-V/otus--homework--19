@@ -1,8 +1,15 @@
 import Component from "../basic/Component";
-import close from "../../assets/images/close.svg";
 import spongebob from "../../assets/images/spongebob.jpg";
 
 export class About extends Component {
+  constructor(...props: [el: HTMLElement, initialState?: Record<string, any>]) {
+    super(...props);
+
+    this.state.eventBus.once("initialLoad", () => {
+      this.setState({});
+    });
+  }
+
   handleClickGithub = (e: Event) => {
     window.open("https://github.com/Djess-V/otus--homework--19");
   };
@@ -12,20 +19,13 @@ export class About extends Component {
   };
 
   render() {
-    return `
-    <div class="app__modal-backdrop"></div>
-      <div
-        class='app__modal-wrapper modal-wrapper'
-      >
+    return `      
         <div class="modal-wrapper__modal modal ">
           <div
             class="modal__content content-modal"
           >
             <div class="content-modal__header">
-              <h2 class="content-modal__header_title">About</h2>
-              <a class="content-modal__header_close" href="${this.state.prevPath}" >
-                <img src=${close} alt="Close" width="25px" height="25px" />
-              </a>              
+              <h2 class="content-modal__header_title">About</h2>                           
             </div>
             <div class='content-modal__body body-modal body-modal-about'>
                 <img src=${spongebob} alt="SpongeBob" width="148px" height="180px" />
@@ -50,7 +50,7 @@ export class About extends Component {
             </div>
           </div>
         </div>
-      </div>
+      
     `;
   }
 }

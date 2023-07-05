@@ -6,29 +6,21 @@ const sleep = (x: number) => new Promise((r) => setTimeout(r, x));
 describe("startApp", () => {
   let el: HTMLElement;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     el = document.createElement("div");
+
+    await startApp(el);
   });
 
-  it("check render", async () => {
-    await startApp(el);
-
-    await sleep(100);
-
+  it("check render", () => {
     const header = el.querySelector(".header") as HTMLElement;
     const main = el.querySelector(".main") as HTMLElement;
-    const modals = el.querySelector(".modals") as HTMLElement;
 
     expect(header).toBeTruthy();
     expect(main).toBeTruthy();
-    expect(modals).toBeTruthy();
   });
 
   it("check About", async () => {
-    await startApp(el);
-
-    await sleep(100);
-
     window.location.assign("/about");
 
     window.dispatchEvent(new Event("popstate"));
@@ -57,10 +49,6 @@ describe("startApp", () => {
   });
 
   it("check Calendar", async () => {
-    await startApp(el);
-
-    await sleep(100);
-
     window.location.assign("/calendar");
 
     window.dispatchEvent(new Event("popstate"));
@@ -72,19 +60,149 @@ describe("startApp", () => {
     expect(tds.length).toBe(42);
   });
 
-  it("check Tasks", async () => {
-    await startApp(el);
-
-    await sleep(100);
-
-    window.location.assign("https://github.com/tasks?all=1completed=0");
+  it("check Tasks with all tasks", async () => {
+    window.location.assign("/tasks?all=1");
 
     window.dispatchEvent(new Event("popstate"));
 
     await sleep(100);
 
-    const checkbox = el.querySelector(".tasks__checkbox") as HTMLElement;
+    const checkbox = el.querySelector(
+      ".checkbox-completed__input"
+    ) as HTMLInputElement;
 
-    expect(checkbox).toBeTruthy();
+    checkbox.dispatchEvent(new Event("click"));
+
+    expect(checkbox.checked).toBeFalsy();
+
+    const lis = el.querySelectorAll("li") as NodeListOf<HTMLLIElement>;
+
+    expect(lis.length).toBe(1);
+  });
+
+  it("check for creating, updating and search tasks on a specific date", async () => {
+    window.location.assign("/tasks?year=2023&month=6&day=5");
+
+    window.dispatchEvent(new Event("popstate"));
+
+    await sleep(100);
+
+    const btnCreate = el.querySelector(
+      ".tasks__button-create-task"
+    ) as HTMLButtonElement;
+
+    btnCreate.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    const btnCancel = el.querySelector(
+      ".footer-content-modal__button-cancel"
+    ) as HTMLButtonElement;
+
+    btnCancel.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    btnCreate.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    let inputText = el.querySelector(
+      ".body-modal-create__input_type_create"
+    ) as HTMLInputElement;
+
+    inputText.value = "Bear";
+
+    let form = el.querySelector(".body-modal-create") as HTMLButtonElement;
+
+    form.dispatchEvent(new Event("submit"));
+
+    await sleep(100);
+
+    let lis = el.querySelectorAll("li") as NodeListOf<HTMLLIElement>;
+
+    expect(lis.length).toBe(3);
+
+    btnCreate.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    inputText = el.querySelector(
+      ".body-modal-create__input_type_create"
+    ) as HTMLInputElement;
+
+    inputText.value = "Bear";
+
+    const inputTags = el.querySelector(
+      ".body-modal-create__input_type_tags"
+    ) as HTMLInputElement;
+
+    inputTags.value = "Bear-bear";
+
+    form = el.querySelector(".body-modal-create") as HTMLButtonElement;
+
+    form.dispatchEvent(new Event("submit"));
+
+    await sleep(100);
+
+    const message = el.querySelector(
+      ".body-modal__error-message"
+    ) as HTMLElement;
+
+    expect(message).toBeTruthy();
+
+    btnCancel.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    lis = el.querySelectorAll("li") as NodeListOf<HTMLLIElement>;
+
+    const btnUpdate = lis[1].querySelector(
+      ".update__button"
+    ) as HTMLButtonElement;
+
+    btnUpdate.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    const inputUpdate = el.querySelector(
+      ".body-modal-update__input"
+    ) as HTMLInputElement;
+
+    expect(inputUpdate.value).toBe("Bear");
+
+    inputUpdate.value = "Bear is good!";
+
+    const update = el.querySelector(
+      ".footer-content-modal__button-update"
+    ) as HTMLButtonElement;
+
+    update.dispatchEvent(new Event("click"));
+
+    await sleep(100);
+
+    lis = el.querySelectorAll("li") as NodeListOf<HTMLLIElement>;
+
+    const taskText = lis[1].querySelector(".text-task") as HTMLElement;
+
+    expect(taskText.textContent).toBe("Bear is good!");
+
+    const inputSearch = el.querySelector(
+      ".form-search-tasks__input"
+    ) as HTMLInputElement;
+
+    inputSearch.value = "Bear";
+
+    const formSearch = el.querySelector(
+      ".form-search-tasks"
+    ) as HTMLFormElement;
+
+    formSearch.dispatchEvent(new Event("submit"));
+
+    await sleep(100);
+
+    lis = el.querySelectorAll("li") as NodeListOf<HTMLLIElement>;
+
+    expect(lis.length).toBe(2);
   });
 });

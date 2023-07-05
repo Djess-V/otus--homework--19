@@ -144,6 +144,8 @@ export default async function startApp(element: HTMLElement) {
         eventBus,
       });
 
+      addPrefix();
+
       const main = element.querySelector(".main") as HTMLElement;
 
       new About(main, { eventBus });

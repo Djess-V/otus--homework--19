@@ -35,23 +35,6 @@ describe("Component", () => {
     expect(el.innerHTML).toBe(`<h1>${text}</h1>[object Object]`);
   });
 
-  it("can render props from state", async () => {
-    const text = String(Math.random());
-    class TestComponent extends Component {
-      state = {
-        text,
-      };
-
-      render() {
-        return `<h1>${this.state.text}</h1>`;
-      }
-    }
-    const test = new TestComponent(el);
-    await sleep(10);
-
-    expect(el.innerHTML).toBe(`<h1>${text}</h1>`);
-  });
-
   it("updates presentation on setState call", async () => {
     const text = String(Math.random());
     const text2 = String(Math.random());

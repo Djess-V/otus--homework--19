@@ -37,7 +37,6 @@ module.exports = {
       },
     ],
     "max-classes-per-file": "off",
-    "class-methods-use-this": "off",
     "import/extensions": ["warn", { ts: "never" }],
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": [
@@ -50,11 +49,21 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "no-param-reassign": "off",
-    "no-console": "off",
-    "no-eval": "off",
+    "no-loop-func": "off",
+    "no-new": "off",
     "no-promise-executor-return": "off",
     "no-use-before-define": "off",
     "no-restricted-syntax": "off",
     "default-param-last": "off",
+    "class-methods-use-this": "off",
+    "prefer-destructuring": ["error", { object: true, array: false }],
+    "no-bitwise": ["error", { allow: ["~"] }],
+  },
+  settings: {
+    "import/resolver": {
+      node: {
+        extensions: [".ts", ".d.ts"],
+      },
+    },
   },
 };

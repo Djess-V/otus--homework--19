@@ -1,6 +1,6 @@
-import Component from "./basic/Component";
+import Component from "../basic/Component";
 
-export class App extends Component {
+export class Start extends Component {
   constructor(...props: [el: HTMLElement, initialState?: Record<string, any>]) {
     super(...props);
 
@@ -11,8 +11,9 @@ export class App extends Component {
 
   render() {
     return `
-    <header class="header" ></header>
-    <main class="main _container" ></main>    
-  `;
+      <div class="welcome">
+         <h1 >Welcome!</h1>
+         <h2>Use the links at the top of the app for further work.</h2>
+      </div>`;
   }
 }

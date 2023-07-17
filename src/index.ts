@@ -1,6 +1,7 @@
-import { App } from "./components/App";
-import "./style/style.css";
+import startApp from "./startApp";
 
 const element = document.getElementById("app") as HTMLDivElement;
 
-const app = new App(element);
+if (element) {
+  startApp(element);
+}

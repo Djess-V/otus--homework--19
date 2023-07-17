@@ -1,0 +1,160 @@
+/* -----Calendar----- */
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  font-size: 3vw;
+  margin: 20px;
+  width: 80%;
+  max-width: 700px;
+  color: #423b3b;
+}
+
+@media (min-width: 900px) {
+  .calendar {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 460px) {
+  .calendar {
+    width: 100%;
+    margin: 20px 0;
+  }
+}
+
+.calendar__checkbox {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.legend {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 50px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  & p {
+    display: flex;
+    align-items: center;
+    font-size: 2.5vw;
+  }
+
+  & span {
+    display: block;
+    width: 33px;
+    height: 33px;
+    border-radius: 50%;
+  }
+
+  & .today {
+    background-color: #9fcee7;
+  }
+
+  & .task-exist {
+    border: 2px dotted green;
+  }
+}
+
+@media (min-width: 1000px) {
+  .legend p {
+    font-size: 25px;
+  }
+}
+
+.header-calendar {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+
+  &__title {
+    width: 260px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  & a {
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    text-align: center;
+    background-color: #20b8b0;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.3s linear;
+    border-radius: 50%;
+    font-size: 34px;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+@media (max-width: 600px) {
+  .header-calendar__title {
+    width: 230px;
+  }
+}
+@media (max-width: 380px) {
+  .header-calendar__title {
+    width: 200px;
+  }
+  .header-calendar a {
+    width: 34px;
+    height: 34px;
+    font-size: 25px;
+  }
+}
+
+.table-calendar {
+  width: 100%;
+  border-spacing: 1.3vmin;
+  cursor: pointer;
+
+  & td {
+    & a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      margin: auto;
+      text-decoration: none;
+      transition: all 0.1s linear;
+
+      &:hover {
+        background-color: #0288d1;
+      }
+    }
+  }
+
+  &__cell_currentMonth a {
+    color: #423b3b;
+  }
+
+  &__cell_anotherMonth a {
+    color: #20b8b0;
+  }
+}
+
+.tasks-exists {
+  border: 2px dotted green;
+}
+td[data-today="today"] a {
+  background-color: #9fcee7;
+}
+
+@media (max-width: 560px) {
+  .calendar,
+  .legend p {
+    font-size: 5vmin;
+  }
+  .table-calendar {
+    border-spacing: 0.6vmin;
+  }
+}
